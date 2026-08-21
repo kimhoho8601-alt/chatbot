@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="SCK AI 챗봇 개발 TF 킥오프 워크스페이스" />
+  <title>SCK AI Chatbot TF · Kickoff Workspace</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="top-progress" aria-hidden="true"><span id="scrollProgress"></span></div>
+
+  <header class="site-header">
+    <a class="brand" href="#top" aria-label="처음으로">
+      <span class="brand-mark">S</span>
+      <span><strong>SCK AI Chatbot TF</strong><small>UP-GLE PROJECT</small></span>
+    </a>
+    <nav class="desktop-nav" aria-label="주요 메뉴">
+      <a href="#why">WHY</a>
+      <a href="#goal">GOAL</a>
+      <a href="#roadmap">ROADMAP</a>
+      <a href="#role">ROLE</a>
+      <a href="#kickoff">KICK-OFF</a>
+    </nav>
+    <button class="menu-btn" id="menuBtn" aria-expanded="false" aria-controls="mobileNav">MENU</button>
+  </header>
+  <nav class="mobile-nav" id="mobileNav" aria-label="모바일 메뉴">
+    <a href="#why">WHY</a><a href="#goal">GOAL</a><a href="#roadmap">ROADMAP</a><a href="#role">ROLE</a><a href="#kickoff">KICK-OFF</a>
+  </nav>
+
+  <main id="top">
+    <section class="hero section-shell">
+      <div class="hero-copy reveal">
+        <p class="eyebrow">FIELD KNOW-HOW × AI × STANDARD</p>
+        <h1>현장의 사례관리 노하우를<br><span>함께 AI에 담습니다.</span></h1>
+        <p class="hero-desc">SCK AI 챗봇 개발 TF는 ‘AI를 만드는 모임’이 아니라, 현장 실무자가 실제로 쓰는 기록 기준과 판단 노하우를 함께 정의하고 검증하는 6주 협업 프로젝트입니다.</p>
+        <div class="hero-actions">
+          <a class="btn primary" href="#kickoff">킥오프 시작하기</a>
+          <a class="btn ghost" href="#roadmap">6주 로드맵 보기</a>
+        </div>
+        <div class="hero-meta">
+          <div><strong>약 6주</strong><span>운영 기간</span></div>
+          <div><strong>13명</strong><span>TF 구성</span></div>
+          <div><strong>2 Tracks</strong><span>아보전 · 가정위탁</span></div>
+        </div>
+      </div>
+      <div class="hero-visual reveal delay-1" aria-label="프로젝트 흐름 시각화">
+        <div class="orbit-card orbit-main">
+          <span class="pulse"></span>
+          <small>CORE</small>
+          <strong>SCK AI</strong>
+          <p>현장 적용 가능한<br>사례관리 기록 챗봇</p>
+        </div>
+        <div class="orbit-card orbit-one"><span>01</span><strong>현장 경험</strong><small>KNOW-HOW</small></div>
+        <div class="orbit-card orbit-two"><span>02</span><strong>작성 기준</strong><small>STANDARD</small></div>
+        <div class="orbit-card orbit-three"><span>03</span><strong>검증·개선</strong><small>VALIDATION</small></div>
+        <svg class="orbit-lines" viewBox="0 0 600 600" aria-hidden="true">
+          <circle cx="300" cy="300" r="215" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="4 8"/>
+          <circle cx="300" cy="300" r="145" fill="none" stroke="currentColor" stroke-width="1" opacity=".5"/>
+        </svg>
+      </div>
+    </section>
+
+    <section class="statement band" id="why">
+      <div class="section-shell statement-grid">
+        <div class="section-index">01 / WHY</div>
+        <div class="statement-copy reveal">
+          <p class="kicker">왜 이 TF를 시작하나요?</p>
+          <h2>좋은 기록은 개인의 감각에만<br>머물러서는 안 됩니다.</h2>
+          <p>사례관리 기록은 ‘무엇을 봤는지’뿐 아니라 ‘어떻게 판단했는지’가 축적되어야 합니다. 이번 TF는 현장의 경험을 분석하고, 반복 가능한 기준으로 바꾸고, AI가 그 기준을 안정적으로 지원하도록 만드는 과정입니다.</p>
+        </div>
+        <div class="problem-stack reveal delay-1">
+          <article><span>BEFORE</span><strong>사람마다 다른 기록 방식</strong><p>좋은 노하우가 개인에게 머물고, 작성 편차가 발생합니다.</p></article>
+          <article class="active"><span>TF WORK</span><strong>노하우 → 기준 → 프롬프트</strong><p>현장 판단을 언어화하고, 출력 기준을 함께 설계합니다.</p></article>
+          <article><span>AFTER</span><strong>일관된 기록 지원</strong><p>현장 적용 가능한 챗봇으로 기록 품질과 효율을 함께 높입니다.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-shell section" id="goal">
+      <div class="section-heading reveal">
+        <div><span class="section-index">02 / GOAL</span><p class="kicker">이번 프로젝트가 만드는 변화</p></div>
+        <h2>기술보다 먼저,<br>우리의 기준을 만듭니다.</h2>
+      </div>
+      <div class="goal-grid">
+        <article class="goal-card reveal"><span class="num">01</span><div class="goal-icon">✦</div><h3>현장 노하우 내재화</h3><p>SCK 사례관리 경험과 기록 노하우를 챗봇 설계에 반영합니다.</p><small>FIELD KNOW-HOW</small></article>
+        <article class="goal-card reveal delay-1"><span class="num">02</span><div class="goal-icon">≋</div><h3>기록 품질 표준화</h3><p>기록 유형별 작성 기준을 정리해 개인별 작성 편차를 줄입니다.</p><small>STANDARDIZATION</small></article>
+        <article class="goal-card reveal delay-2"><span class="num">03</span><div class="goal-icon">↗</div><h3>현장 적용 가능한 AI</h3><p>실제 사례 테스트를 통해 ‘쓸 수 있는 수준’까지 반복 검증합니다.</p><small>FIELD READY</small></article>
+      </div>
+
+      <div class="north-star reveal">
+        <div><span>NORTH STAR</span><h3>“AI가 기록을 대신하는 것이 아니라,<br>좋은 기록을 할 수 있도록 돕는다.”</h3></div>
+        <div class="north-tags"><span>현장성</span><span>일관성</span><span>활용성</span><span>업무효율</span></div>
+      </div>
+    </section>
+
+    <section class="roadmap-section" id="roadmap">
+      <div class="section-shell section">
+        <div class="section-heading light reveal">
+          <div><span class="section-index">03 / ROADMAP</span><p class="kicker">6주 동안 우리는 이렇게 움직입니다</p></div>
+          <h2>분석 → 설계 → 검증 → 확장</h2>
+        </div>
+        <div class="roadmap-tabs" role="tablist" aria-label="TF 단계">
+          <button class="road-tab active" data-stage="stage1" role="tab">WEEK 1</button>
+          <button class="road-tab" data-stage="stage2" role="tab">WEEK 2–3</button>
+          <button class="road-tab" data-stage="stage3" role="tab">WEEK 4–5</button>
+          <button class="road-tab" data-stage="stage4" role="tab">WEEK 6</button>
+        </div>
+        <div class="stage-panel reveal" id="stagePanel">
+          <div class="stage-badge" id="stageBadge">01</div>
+          <div class="stage-copy">
+            <p id="stageLabel">WEEK 1 · OFFLINE</p>
+            <h3 id="stageTitle">TF 구성 및 착수</h3>
+            <p id="stageDesc">같은 목표를 보고 출발하기 위한 프로젝트 셋업 단계입니다.</p>
+          </div>
+          <ul id="stageList">
+            <li>구성원 확정</li><li>사업 목적·추진 방향 공유</li><li>역할 분담</li><li>주요 산출물 확정</li>
+          </ul>
+        </div>
+        <div class="roadmap-line" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+        <p class="roadmap-note">온·오프라인 회의를 병행하며 단계별 결과물을 검토하고 의견을 수렴해 지속적으로 품질을 개선합니다.</p>
+      </div>
+    </section>
+
+    <section class="section-shell section" id="role">
+      <div class="section-heading reveal">
+        <div><span class="section-index">04 / ROLE</span><p class="kicker">TF에서 각자 무엇을 하나요?</p></div>
+        <h2>모두가 ‘현장 기준의 설계자’입니다.</h2>
+      </div>
+      <div class="role-layout">
+        <article class="leader-card reveal">
+          <div class="role-label">TF LEADER</div>
+          <h3>방향을 연결하고<br>의사결정을 촉진합니다.</h3>
+          <ul><li>운영 총괄</li><li>일정 관리</li><li>주요 의사결정</li><li>법인 내 협업 포컬</li></ul>
+        </article>
+        <article class="member-card reveal delay-1">
+          <div class="role-label">TF MEMBER</div>
+          <h3>현장의 언어를<br>챗봇의 기준으로 바꿉니다.</h3>
+          <ul><li><strong>분석</strong><span>실제 기록 유형·패턴과 판단 포인트를 정리</span></li><li><strong>설계</strong><span>현장 기반 프롬프트와 출력 형식 설계</span></li><li><strong>기준</strong><span>작성 기준·미사용 표현·보고서 어투 정리</span></li><li><strong>검증</strong><span>실제 사례로 오류·한계·현장 활용성 검증</span></li></ul>
+        </article>
+      </div>
+      <div class="team-structure reveal">
+        <div class="team-core"><small>SUPPORT CORE</small><strong>수탁사업지원팀 3명</strong><span>아보전·가정위탁 양 영역 참여</span></div>
+        <div class="connector">×</div>
+        <div class="team-field"><small>FIELD REPRESENTATIVES</small><strong>각 시설별 대표</strong><span>사례관리 2년 이상 · AI 이해/활용도가 높은 직원</span></div>
+        <div class="team-total"><small>TOTAL</small><strong>13</strong><span>MEMBERS</span></div>
+      </div>
+    </section>
+
+    <section class="output-section">
+      <div class="section-shell section">
+        <div class="section-heading reveal">
+          <div><span class="section-index">05 / OUTPUT</span><p class="kicker">무엇을 남기게 되나요?</p></div>
+          <h2>회의가 아니라<br>‘결과물’을 축적합니다.</h2>
+        </div>
+        <div class="output-flow reveal">
+          <div class="flow-item"><b>01</b><strong>기록 유형·패턴</strong><span>현장 사례 분석</span></div><i>→</i>
+          <div class="flow-item"><b>02</b><strong>AI 판단 기준</strong><span>판단 포인트 구조화</span></div><i>→</i>
+          <div class="flow-item"><b>03</b><strong>프롬프트 세트</strong><span>목적별 설계</span></div><i>→</i>
+          <div class="flow-item"><b>04</b><strong>출력 기준</strong><span>어투·형식·금지 표현</span></div><i>→</i>
+          <div class="flow-item highlight"><b>05</b><strong>검증된 챗봇</strong><span>현장 활용성 확인</span></div>
+        </div>
+        <div class="impact-strip reveal">
+          <div><strong>↓</strong><span>작성 편차 감소</span></div><div><strong>↑</strong><span>기록 일관성</span></div><div><strong>↓</strong><span>업무 시간</span></div><div><strong>↑</strong><span>현장 활용성</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-shell section kickoff" id="kickoff">
+      <div class="section-heading reveal">
+        <div><span class="section-index">06 / KICK-OFF</span><p class="kicker">첫 모임에서 맞춰야 할 것</p></div>
+        <h2>오늘은 ‘정답’을 만드는 날이 아니라<br>같은 질문을 갖는 날입니다.</h2>
+      </div>
+      <div class="kick-grid">
+        <div class="agenda reveal">
+          <div class="agenda-head"><h3>Kick-off Agenda</h3><span>권장 진행안</span></div>
+          <ol>
+            <li><time>10'</time><div><strong>왜 이 TF인가</strong><span>목적·성공 기준 공유</span></div></li>
+            <li><time>15'</time><div><strong>현장의 불편 정의</strong><span>기록 업무에서 반복되는 어려움 수집</span></div></li>
+            <li><time>20'</time><div><strong>좋은 기록의 기준</strong><span>좋은/아쉬운 기록의 차이 토론</span></div></li>
+            <li><time>10'</time><div><strong>역할·산출물 합의</strong><span>누가 무엇을 어떻게 남길지 확정</span></div></li>
+            <li><time>05'</time><div><strong>다음 액션</strong><span>2~3주차 분석 과제 안내</span></div></li>
+          </ol>
+        </div>
+        <div class="kick-prompt reveal delay-1">
+          <p class="label">TODAY'S QUESTIONS</p>
+          <h3>우리가 같이 답할<br>세 가지 질문</h3>
+          <div class="question"><span>Q1</span><p>“좋은 사례기록”이라고 느끼는 순간은 언제인가?</p></div>
+          <div class="question"><span>Q2</span><p>AI가 도와주면 가장 시간을 줄일 수 있는 지점은 어디인가?</p></div>
+          <div class="question"><span>Q3</span><p>AI가 절대로 임의로 판단하면 안 되는 지점은 무엇인가?</p></div>
+        </div>
+      </div>
+
+      <div class="working-agreement reveal">
+        <div><span class="section-index">WORKING AGREEMENT</span><h3>우리의 협업 원칙</h3></div>
+        <div class="agreement-list">
+          <label><input type="checkbox"><span><b>현장 우선</b> 기술적으로 멋진 것보다 실제로 쓸 수 있는 것을 선택합니다.</span></label>
+          <label><input type="checkbox"><span><b>사례로 말하기</b> “느낌”보다 실제 사례와 근거로 피드백합니다.</span></label>
+          <label><input type="checkbox"><span><b>빠르게 검증하기</b> 완벽한 초안보다 테스트 가능한 초안을 먼저 만듭니다.</span></label>
+          <label><input type="checkbox"><span><b>안전하게 다루기</b> 테스트 과정에서도 개인정보·민감정보 보호를 우선합니다.</span></label>
+        </div>
+        <p class="save-note" id="saveNote">체크 상태는 이 브라우저에 자동 저장됩니다.</p>
+      </div>
+    </section>
+
+    <section class="cta-section">
+      <div class="section-shell cta reveal">
+        <p>6 WEEKS · 13 PEOPLE · ONE STANDARD</p>
+        <h2>현장의 경험이<br>우리의 기준이 됩니다.</h2>
+        <a class="btn inverse" href="#top">처음부터 다시 보기 ↑</a>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="section-shell footer-inner">
+      <div><strong>SCK AI Chatbot TF</strong><span>UP-GLE Project · Kickoff Workspace</span></div>
+      <p>수탁사업지원팀 · 2026</p>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
