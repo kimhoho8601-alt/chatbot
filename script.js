@@ -27,13 +27,16 @@ localStorage.setItem('sck-tf-participant-id',participantId);
 const editorToken=localStorage.getItem('sck-tf-editor-token')||crypto.randomUUID();
 localStorage.setItem('sck-tf-editor-token',editorToken);
 
-const categories={align:{icon:'◎'},ground:{icon:'☰'},success:{icon:'★'},ai:{icon:'✎'},risk:{icon:'!'}};
-let notes=[],reactions=[],presence=[],activeFilter='all',searchTerm='',reloadTimer=null;
+const categories={align:{icon:'◎',label:'오늘 정해야 할 것'},ground:{icon:'☰',label:'그라운드 룰'},success:{icon:'★',label:'성공 기준'},ai:{icon:'✎',label:'AI가 도와줄 수 있는 것'},risk:{icon:'!',label:'AI가 하면 안 될 일'}};
+const presentationOrder=['align','ground','success','ai','risk'];
+let notes=[],reactions=[],presence=[],activeFilter='all',searchTerm='',reloadTimer=null,presentationMode=false,presentationCategory='align',prePresentationFilter='all';
 const authorSelect=document.getElementById('boardAuthor');
 authorSelect.value=localStorage.getItem('sck-tf-author')||'';
 authorSelect.addEventListener('change',()=>{localStorage.setItem('sck-tf-author',authorSelect.value);touchPresence()});
 
 ensurePresenceUI();
+ensurePresentationUI();
+installPresentationStyles();
 
 async function loadBoard(quiet=false){
   if(!quiet)setConnection('동기화 중',true);
@@ -62,7 +65,7 @@ function renderBoard(){
     col.querySelector('.col-count').textContent=notes.filter(n=>n.category===cat).length;
     listEl.innerHTML=arr.length?arr.map(n=>noteTemplate(n)).join(''):`<div class="empty-note"><strong>아직 의견이 없습니다.</strong><span>첫 의견을 남겨주세요.</span></div>`;
   });
-  bindNoteActions();updateInsights();
+  bindNoteActions();updateInsights();applyPresentationView();
 }
 
 function noteTemplate(n){const liked=isLiked(n.id),count=likeCount(n.id);return `<article class="board-note" data-id="${n.id}"><div class="note-top"><div class="note-icon">${categories[n.category]?.icon||'•'}</div><div class="note-body"><p>${escapeHtml(n.content)}</p></div></div><div class="note-meta"><span class="author-chip">${escapeHtml(n.author_name||'익명')}</span><div class="note-actions"><button class="like-btn ${liked?'liked':''}" title="공감">♡ ${count}</button>${canEdit(n)?'<button class="edit-btn">수정</button><button class="delete-btn">삭제</button>':''}</div></div></article>`}
@@ -126,13 +129,98 @@ setInterval(()=>{touchPresence();loadBoard(true)},15000);
 window.addEventListener('focus',()=>{touchPresence();loadBoard(true)});
 document.addEventListener('visibilitychange',()=>{if(!document.hidden){touchPresence();loadBoard(true)}});
 
-const boardTabs=document.getElementById('boardTabs');boardTabs.addEventListener('click',e=>{const b=e.target.closest('button[data-filter]');if(!b)return;activeFilter=b.dataset.filter;boardTabs.querySelectorAll('button').forEach(x=>x.classList.toggle('active',x===b));renderBoard()});
+function ensurePresentationUI(){
+  const grid=document.querySelector('.alignment-grid');
+  if(!grid||document.getElementById('presentationNav'))return;
+  const nav=document.createElement('div');
+  nav.id='presentationNav';nav.className='presentation-nav';
+  nav.innerHTML=`<button type="button" id="presentationPrev" aria-label="이전 주제">←</button><div class="presentation-topic"><small id="presentationStep">1 / 5</small><strong id="presentationTitle">오늘 정해야 할 것</strong><span>상단 메뉴를 눌러 다른 주제로 이동할 수 있습니다.</span></div><button type="button" id="presentationNext" aria-label="다음 주제">→</button>`;
+  grid.insertAdjacentElement('beforebegin',nav);
+  document.getElementById('presentationPrev').addEventListener('click',()=>movePresentation(-1));
+  document.getElementById('presentationNext').addEventListener('click',()=>movePresentation(1));
+}
+
+function installPresentationStyles(){
+  if(document.getElementById('presentationFocusStyles'))return;
+  const style=document.createElement('style');style.id='presentationFocusStyles';style.textContent=`
+  .presentation-nav{display:none}
+  .alignment-board.presentation{padding-top:34px}
+  .alignment-board.presentation .alignment-head{margin-bottom:14px}
+  .alignment-board.presentation .alignment-head p,.alignment-board.presentation .quick-compose,.alignment-board.presentation .board-search,.alignment-board.presentation .board-insights{display:none!important}
+  .alignment-board.presentation .presence-panel{margin-bottom:14px}
+  .alignment-board.presentation .board-controlbar{position:sticky;top:0;z-index:30;background:rgba(7,8,10,.94);backdrop-filter:blur(16px);padding:12px 0 14px;margin-bottom:0}
+  .alignment-board.presentation .board-tabs{width:100%;justify-content:center;flex-wrap:wrap}
+  .alignment-board.presentation .board-tabs button[data-filter="all"]{display:none}
+  .alignment-board.presentation .board-tabs button{min-height:46px;padding:0 20px;font-size:13px}
+  .alignment-board.presentation .board-tabs button.active{background:#ef2027;color:#fff;border-color:#ef2027;box-shadow:0 8px 28px rgba(239,32,39,.18)}
+  .alignment-board.presentation .presentation-nav{display:grid;grid-template-columns:54px minmax(0,1fr) 54px;align-items:center;gap:18px;max-width:1180px;margin:20px auto 14px;padding:14px 18px;border:1px solid #292b30;border-radius:18px;background:#101115}
+  .alignment-board.presentation .presentation-nav>button{width:48px;height:48px;border-radius:14px;border:1px solid #33353b;background:#191a1f;color:#fff;font-size:20px;cursor:pointer}
+  .alignment-board.presentation .presentation-nav>button:hover{border-color:#ef2027;color:#ff6166}
+  .presentation-topic{text-align:center;min-width:0}.presentation-topic small{display:block;color:#ff4e54;font-size:10px;font-weight:900;letter-spacing:.14em}.presentation-topic strong{display:block;font-size:24px;margin-top:3px}.presentation-topic span{display:block;color:#777a82;font-size:11px;margin-top:3px}
+  .alignment-board.presentation .alignment-grid{display:block;overflow:visible;padding:0;max-width:1180px;margin:0 auto}
+  .alignment-board.presentation .align-col{display:none!important}
+  .alignment-board.presentation .align-col.presentation-active{display:flex!important;width:100%;min-width:0;min-height:620px;border-radius:28px;overflow:hidden;background:linear-gradient(180deg,#17181c 0%,#101115 100%);box-shadow:0 30px 90px rgba(0,0,0,.28)}
+  .alignment-board.presentation .align-col.presentation-active>header{padding:30px 34px 24px;align-items:flex-start}
+  .alignment-board.presentation .align-col.presentation-active h3{font-size:34px;letter-spacing:-.035em;margin-bottom:8px}
+  .alignment-board.presentation .align-col.presentation-active header p{font-size:13px}
+  .alignment-board.presentation .align-col.presentation-active .col-count{font-size:28px;font-weight:900}
+  .alignment-board.presentation .align-col.presentation-active .note-list{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;padding:20px 24px 10px;align-content:start}
+  .alignment-board.presentation .align-col.presentation-active .board-note{padding:20px;border-radius:18px;min-height:132px}
+  .alignment-board.presentation .align-col.presentation-active .note-icon{width:44px;height:44px;flex-basis:44px;border-radius:13px;font-size:18px}
+  .alignment-board.presentation .align-col.presentation-active .note-body p{font-size:17px;line-height:1.55}
+  .alignment-board.presentation .align-col.presentation-active .note-meta{margin-top:18px}.alignment-board.presentation .align-col.presentation-active .author-chip{font-size:12px}.alignment-board.presentation .align-col.presentation-active .like-btn,.alignment-board.presentation .align-col.presentation-active .edit-btn,.alignment-board.presentation .align-col.presentation-active .delete-btn{font-size:12px;min-height:32px}
+  .alignment-board.presentation .align-col.presentation-active .inline-add{margin:14px 24px 24px;min-height:54px;font-size:13px}
+  .alignment-board.presentation .align-col.presentation-active .empty-note{grid-column:1/-1;padding:70px 20px;font-size:14px}
+  .alignment-board.presentation .board-footerline{max-width:1180px;margin:0 auto;padding-top:14px}
+  @media(max-width:800px){.alignment-board.presentation .board-tabs{justify-content:flex-start;flex-wrap:nowrap;overflow-x:auto}.alignment-board.presentation .presentation-nav{grid-template-columns:44px minmax(0,1fr) 44px;padding:12px 10px}.presentation-topic strong{font-size:18px}.presentation-topic span{display:none}.alignment-board.presentation .align-col.presentation-active h3{font-size:26px}.alignment-board.presentation .align-col.presentation-active .note-list{grid-template-columns:1fr;padding:14px}.alignment-board.presentation .align-col.presentation-active>header{padding:24px 20px 18px}.alignment-board.presentation .align-col.presentation-active .board-note{min-height:0;padding:16px}}
+  `;document.head.appendChild(style);
+}
+
+function setPresentationCategory(cat,scroll=false){
+  if(!presentationOrder.includes(cat))cat='align';
+  presentationCategory=cat;activeFilter=cat;
+  boardTabs.querySelectorAll('button[data-filter]').forEach(btn=>btn.classList.toggle('active',btn.dataset.filter===cat));
+  document.querySelectorAll('.align-col').forEach(col=>col.classList.toggle('presentation-active',col.dataset.cat===cat));
+  const idx=presentationOrder.indexOf(cat);
+  const step=document.getElementById('presentationStep'),pt=document.getElementById('presentationTitle');
+  if(step)step.textContent=`${idx+1} / ${presentationOrder.length}`;
+  if(pt)pt.textContent=categories[cat]?.label||cat;
+  const select=document.getElementById('boardCategory');if(select)select.value=cat;
+  renderBoard();
+  if(scroll)document.querySelector('.presentation-nav')?.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function applyPresentationView(){
+  const board=document.getElementById('board');
+  if(!presentationMode||!board?.classList.contains('presentation')){document.querySelectorAll('.align-col').forEach(col=>col.classList.remove('presentation-active'));return}
+  document.querySelectorAll('.align-col').forEach(col=>col.classList.toggle('presentation-active',col.dataset.cat===presentationCategory));
+  const idx=presentationOrder.indexOf(presentationCategory);
+  const step=document.getElementById('presentationStep'),pt=document.getElementById('presentationTitle');
+  if(step)step.textContent=`${idx+1} / ${presentationOrder.length}`;
+  if(pt)pt.textContent=categories[presentationCategory]?.label||presentationCategory;
+}
+
+function movePresentation(direction){const idx=presentationOrder.indexOf(presentationCategory);const next=(idx+direction+presentationOrder.length)%presentationOrder.length;setPresentationCategory(presentationOrder[next],false)}
+
+const boardTabs=document.getElementById('boardTabs');
+boardTabs.addEventListener('click',e=>{
+  const b=e.target.closest('button[data-filter]');if(!b)return;
+  if(presentationMode){const cat=b.dataset.filter==='all'?presentationCategory:b.dataset.filter;setPresentationCategory(cat,false);return}
+  activeFilter=b.dataset.filter;boardTabs.querySelectorAll('button').forEach(x=>x.classList.toggle('active',x===b));renderBoard();
+});
 document.getElementById('boardSearch').addEventListener('input',e=>{searchTerm=e.target.value.trim().toLowerCase();renderBoard()});
 document.getElementById('addNote').addEventListener('click',addNote);
 document.getElementById('boardInput').addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='Enter')addNote()});
 document.getElementById('openComposer').addEventListener('click',()=>{document.getElementById('quickComposer').scrollIntoView({behavior:'smooth',block:'center'});document.getElementById('boardInput').focus()});
 document.querySelectorAll('.inline-add').forEach(btn=>btn.addEventListener('click',()=>{document.getElementById('boardCategory').value=btn.dataset.category;document.getElementById('boardInput').focus();document.getElementById('quickComposer').scrollIntoView({behavior:'smooth',block:'center'})}));
-document.getElementById('presentationBtn').addEventListener('click',()=>{const board=document.getElementById('board');board.classList.toggle('presentation');document.getElementById('presentationBtn').textContent=board.classList.contains('presentation')?'발표 모드 종료':'발표 모드'});
+document.getElementById('presentationBtn').addEventListener('click',()=>{
+  const board=document.getElementById('board');presentationMode=!presentationMode;board.classList.toggle('presentation',presentationMode);
+  const btn=document.getElementById('presentationBtn');btn.textContent=presentationMode?'발표 모드 종료':'발표 모드';
+  if(presentationMode){prePresentationFilter=activeFilter;const starting=presentationOrder.includes(activeFilter)?activeFilter:'align';setPresentationCategory(starting,true)}else{activeFilter=prePresentationFilter||'all';boardTabs.querySelectorAll('button[data-filter]').forEach(x=>x.classList.toggle('active',x.dataset.filter===activeFilter));renderBoard();}
+});
+
+document.addEventListener('keydown',e=>{if(!presentationMode)return;const tag=document.activeElement?.tagName;if(tag==='INPUT'||tag==='TEXTAREA'||tag==='SELECT')return;if(e.key==='ArrowRight'){e.preventDefault();movePresentation(1)}else if(e.key==='ArrowLeft'){e.preventDefault();movePresentation(-1)}else if(e.key==='Escape'){document.getElementById('presentationBtn')?.click()}});
+
 document.getElementById('exportBoard').addEventListener('click',()=>{const labels={align:'오늘 정해야 할 것',ground:'그라운드 룰',success:'성공 기준',ai:'AI가 도와줄 수 있는 것',risk:'AI가 하면 안 될 일'};const rows=[['카테고리','작성자','의견','공감','작성일'],...notes.map(n=>[labels[n.category]||n.category,n.author_name,n.content,likeCount(n.id),new Date(n.created_at).toLocaleString('ko-KR')])];const csv='\ufeff'+rows.map(r=>r.map(v=>`"${String(v??'').replaceAll('"','""')}"`).join(',')).join('\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download='SCK_AI_TF_킥오프_정렬보드.csv';a.click();URL.revokeObjectURL(a.href)});
 
 function toast(msg){const old=document.querySelector('.board-toast');old?.remove();const el=document.createElement('div');el.className='board-toast';el.textContent=msg;document.body.appendChild(el);setTimeout(()=>el.remove(),1800)}
