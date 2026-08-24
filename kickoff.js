@@ -139,3 +139,11 @@ wireUI();
 await Promise.all([loadAgreement(),loadDeliverables()]);
 setupRealtime();
 setInterval(()=>{loadAgreement();if(document.getElementById('deliverableOverlay')?.classList.contains('open'))loadDeliverables()},5000);
+
+const whyCopy=document.querySelector('#why .body-copy');
+if(whyCopy){
+  whyCopy.innerHTML='현장 실무자의 사례관리 경험과 기록 노하우를 분석해<br>반복 가능한 기준으로 바꾸고, 업무 분석부터 프롬프트 설계,<br>결과 검증까지 단계적으로 추진합니다.';
+  whyCopy.style.wordBreak='keep-all';
+  whyCopy.style.overflowWrap='normal';
+  whyCopy.style.lineHeight='1.7';
+}
