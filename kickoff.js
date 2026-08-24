@@ -18,17 +18,13 @@ const principleMeta={
   try_fast:{title:'빠르게 시도하기',desc:'완벽한 초안보다 테스트 가능한 초안을 먼저 만듭니다.'},
   privacy:{title:'개인정보는 소중하게',desc:'테스트 과정에서도 개인정보와 민감정보 보호를 우선합니다.'}
 };
-const laneMeta={
-  deliverable:{title:'우리가 남길 산출물',desc:'TF가 끝났을 때 실제로 존재해야 하는 결과물'},
-  contents:{title:'산출물에 꼭 들어갈 내용',desc:'결과물의 최소 구성과 핵심 내용'},
-  done:{title:'완료로 보는 기준',desc:'어느 수준까지 만들면 완료라고 볼지'}
-};
 
 let agreementVotes=[];
 let deliverables=[];
 
-function esc(s=''){return String(s).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
-function currentName(){return document.getElementById('agreementAuthor')?.value||document.getElementById('deliverableAuthor')?.value||document.getElementById('boardAuthor')?.value||localStorage.getItem('sck-tf-author')||''}
+function esc(s=''){return String(s).replace(/[&<>'\"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','\"':'&quot;'}[c]))}
+function selectedName(){return document.getElementById('agreementAuthor')?.value||localStorage.getItem('sck-tf-author')||''}
+function currentName(){return selectedName()||document.getElementById('deliverableAuthor')?.value||document.getElementById('boardAuthor')?.value||''}
 
 function syncAuthor(name){
   if(!name)return;
@@ -36,34 +32,64 @@ function syncAuthor(name){
   ['agreementAuthor','deliverableAuthor','boardAuthor'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=name});
 }
 
+function uniqueVotesFor(key){
+  const byName=new Map();
+  agreementVotes.filter(v=>v.principle===key&&members.includes(v.author_name)).forEach(v=>byName.set(v.author_name,v));
+  return [...byName.values()];
+}
+
 function renderAgreement(){
-  const total=members.length*Object.keys(principleMeta).length;
-  const pct=Math.round((agreementVotes.length/total)*100);
-  const totalText=document.getElementById('agreementTotal');if(totalText)totalText.textContent=`${agreementVotes.length} / ${total}`;
+  const principleKeys=Object.keys(principleMeta);
+  const allUnique=principleKeys.flatMap(uniqueVotesFor);
+  const total=members.length*principleKeys.length;
+  const pct=Math.round((allUnique.length/total)*100);
+  const totalText=document.getElementById('agreementTotal');if(totalText)totalText.textContent=`${allUnique.length} / ${total}`;
   const pctText=document.getElementById('agreementPercent');if(pctText)pctText.textContent=`${pct}%`;
   const bar=document.getElementById('agreementBar');if(bar)bar.style.width=`${pct}%`;
+  const name=selectedName();
+
   document.querySelectorAll('[data-principle]').forEach(card=>{
     const key=card.dataset.principle;
-    const votes=agreementVotes.filter(v=>v.principle===key);
+    const votes=uniqueVotesFor(key).sort((a,b)=>members.indexOf(a.author_name)-members.indexOf(b.author_name));
     card.classList.toggle('complete',votes.length===members.length);
     const count=card.querySelector('.principle-count');if(count)count.textContent=`동의 ${votes.length} / ${members.length}`;
     const wrap=card.querySelector('.agree-people');
-    if(wrap)wrap.innerHTML=votes.length?votes.sort((a,b)=>members.indexOf(a.author_name)-members.indexOf(b.author_name)).map(v=>`<span class="agree-person"><b>${emojiMap[v.author_name]||'🙂'}</b><span>${esc(v.author_name)}</span></span>`).join(''):`<span class="agree-empty">아직 동의한 구성원이 없습니다.</span>`;
+    if(wrap)wrap.innerHTML=votes.length?votes.map(v=>`<span class="agree-person ${v.author_name===name?'is-me':''}"><b>${emojiMap[v.author_name]||'🙂'}</b><span>${esc(v.author_name)}</span></span>`).join(''):`<span class="agree-empty">아직 동의한 구성원이 없습니다.</span>`;
     const btn=card.querySelector('.agree-btn');
-    if(btn){const mine=votes.some(v=>v.participant_id===participantId);btn.classList.toggle('active',mine);btn.textContent=mine?'✓ 동의했습니다':'👍 동의합니다';btn.disabled=!currentName();}
+    if(btn){
+      const mine=Boolean(name&&votes.some(v=>v.author_name===name));
+      btn.classList.toggle('active',mine);
+      btn.textContent=mine?'✓ 동의했습니다':'👍 동의합니다';
+      btn.disabled=!name;
+    }
     let done=card.querySelector('.agreement-complete');
     if(votes.length===members.length){if(!done){done=document.createElement('div');done.className='agreement-complete';card.appendChild(done)}done.textContent='✓ 13명 전원 합의 완료';}else done?.remove();
   });
 }
 
-async function loadAgreement(){const {data,error}=await supabase.from('sck_tf_agreement_votes').select('*').eq('workshop_id',WORKSHOP);if(error){console.error(error);return}agreementVotes=data||[];renderAgreement()}
+async function loadAgreement(){
+  const {data,error}=await supabase.from('sck_tf_agreement_votes').select('*').eq('workshop_id',WORKSHOP);
+  if(error){console.error(error);return}
+  agreementVotes=data||[];
+  renderAgreement();
+}
 
 async function toggleAgreement(key){
-  const name=currentName();
+  const name=selectedName();
   if(!name){alert('먼저 이름을 선택해주세요.');document.getElementById('agreementAuthor')?.focus();return}
-  const mine=agreementVotes.find(v=>v.principle===key&&v.participant_id===participantId);
-  if(mine){agreementVotes=agreementVotes.filter(v=>!(v.principle===key&&v.participant_id===participantId));renderAgreement();const {error}=await supabase.from('sck_tf_agreement_votes').delete().eq('workshop_id',WORKSHOP).eq('principle',key).eq('participant_id',participantId);if(error)await loadAgreement();}
-  else{const optimistic={workshop_id:WORKSHOP,principle:key,participant_id:participantId,author_name:name};agreementVotes.push(optimistic);renderAgreement();const {error}=await supabase.from('sck_tf_agreement_votes').upsert(optimistic,{onConflict:'workshop_id,principle,participant_id'});if(error)await loadAgreement();}
+  const mine=agreementVotes.find(v=>v.principle===key&&v.author_name===name);
+  if(mine){
+    agreementVotes=agreementVotes.filter(v=>!(v.principle===key&&v.author_name===name));
+    renderAgreement();
+    const {error}=await supabase.from('sck_tf_agreement_votes').delete().eq('workshop_id',WORKSHOP).eq('principle',key).eq('author_name',name);
+    if(error)await loadAgreement();
+  }else{
+    const optimistic={workshop_id:WORKSHOP,principle:key,participant_id:participantId,author_name:name,created_at:new Date().toISOString()};
+    agreementVotes.push(optimistic);
+    renderAgreement();
+    const {error}=await supabase.from('sck_tf_agreement_votes').upsert(optimistic,{onConflict:'workshop_id,principle,author_name'});
+    if(error)await loadAgreement();
+  }
 }
 
 function renderDeliverables(){
@@ -105,11 +131,11 @@ function wireUI(){
 }
 
 function setupRealtime(){
-  supabase.channel('sck-kickoff-agreement-live').on('postgres_changes',{event:'*',schema:'public',table:'sck_tf_agreement_votes'},()=>loadAgreement()).subscribe();
+  supabase.channel('sck-kickoff-agreement-live-v2').on('postgres_changes',{event:'*',schema:'public',table:'sck_tf_agreement_votes'},()=>loadAgreement()).subscribe();
   supabase.channel('sck-kickoff-deliverables-live').on('postgres_changes',{event:'*',schema:'public',table:'sck_tf_deliverable_notes'},()=>loadDeliverables()).subscribe();
 }
 
 wireUI();
 await Promise.all([loadAgreement(),loadDeliverables()]);
 setupRealtime();
-setInterval(()=>{loadAgreement();if(document.getElementById('deliverableOverlay')?.classList.contains('open'))loadDeliverables()},15000);
+setInterval(()=>{loadAgreement();if(document.getElementById('deliverableOverlay')?.classList.contains('open'))loadDeliverables()},5000);
