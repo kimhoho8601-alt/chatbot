@@ -8,8 +8,8 @@ function installRoadmapDetailStyles(){
   if(document.getElementById('roadmap-detail-styles'))return;
   const style=document.createElement('style');style.id='roadmap-detail-styles';style.textContent=`
     #stageList li.roadmap-detail-item{padding:0!important;overflow:visible;border-color:#45464c;background:#17181b}
-    .roadmap-detail-card{width:100%;min-height:100%;border:0;background:transparent;color:#fff;text-align:left;padding:14px 15px;display:flex;flex-direction:column;gap:10px;cursor:pointer;border-radius:15px;transition:.2s}
-    .roadmap-detail-card:hover{background:#202126;box-shadow:0 0 0 1px #ef2027 inset;transform:translateY(-1px)}
+    .roadmap-detail-card{width:100%;min-height:100%;background:transparent;color:#fff;text-align:left;padding:14px 15px;display:flex;flex-direction:column;gap:10px;cursor:pointer;border-radius:15px;transition:.2s;outline:none}
+    .roadmap-detail-card:hover,.roadmap-detail-card:focus-visible{background:#202126;box-shadow:0 0 0 1px #ef2027 inset;transform:translateY(-1px)}
     .roadmap-detail-card>span{font-weight:800;word-break:keep-all;line-height:1.4}
     .roadmap-detail-chips{display:flex;gap:7px;flex-wrap:wrap}
     .roadmap-detail-chip{border:1px solid #3b3d43;background:#101115;color:#b9bbc1;border-radius:999px;padding:5px 9px;font-size:9px;font-weight:900;letter-spacing:.02em;cursor:pointer}
@@ -74,12 +74,13 @@ function decorateRoadmapStageList(){
   [...list.querySelectorAll('li')].forEach(li=>{
     if(!li.textContent.replace(/\s+/g,'').includes('사업목적·추진방향공유'))return;
     if(li.classList.contains('roadmap-detail-item'))return;
-    li.classList.add('roadmap-detail-item');li.innerHTML=`<button type="button" class="roadmap-detail-card" data-roadmap-open="0"><span>사업 목적·추진 방향 공유</span><div class="roadmap-detail-chips"><button type="button" class="roadmap-detail-chip" data-roadmap-open="0">사업 목적</button><button type="button" class="roadmap-detail-chip" data-roadmap-open="1">추진 방향</button></div><small>상세 페이지 열기 ↗</small></button>`;
+    li.classList.add('roadmap-detail-item');li.innerHTML=`<div class="roadmap-detail-card" data-roadmap-open="0" role="button" tabindex="0"><span>사업 목적·추진 방향 공유</span><div class="roadmap-detail-chips"><button type="button" class="roadmap-detail-chip" data-roadmap-open="0">사업 목적</button><button type="button" class="roadmap-detail-chip" data-roadmap-open="1">추진 방향</button></div><small>상세 페이지 열기 ↗</small></div>`;
   });
 }
 
 installRoadmapDetailStyles();ensureRoadmapModal();decorateRoadmapStageList();
 const stageList=document.getElementById('stageList');
 stageList?.addEventListener('click',e=>{const target=e.target.closest('[data-roadmap-open]');if(!target)return;e.preventDefault();e.stopPropagation();openRoadmapDetail(Number(target.dataset.roadmapOpen)||0)});
+stageList?.addEventListener('keydown',e=>{if(e.key!=='Enter'&&e.key!==' ')return;const target=e.target.closest('.roadmap-detail-card[data-roadmap-open]');if(!target)return;e.preventDefault();openRoadmapDetail(Number(target.dataset.roadmapOpen)||0)});
 if(stageList)new MutationObserver(decorateRoadmapStageList).observe(stageList,{childList:true,subtree:true});
 document.addEventListener('keydown',e=>{const open=document.getElementById('roadmapDetailOverlay')?.classList.contains('open');if(!open)return;if(e.key==='Escape')closeRoadmapDetail();else if(e.key==='ArrowRight')showRoadmapSlide(roadmapSlideIndex+1);else if(e.key==='ArrowLeft')showRoadmapSlide(roadmapSlideIndex-1)});
