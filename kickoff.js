@@ -1,4 +1,5 @@
 import './people-network.js';
+import './people-orbit.js';
 import './roadmap-detail.js';
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 
