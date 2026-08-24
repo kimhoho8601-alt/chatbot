@@ -1,6 +1,6 @@
 const roadmapSlides=[
-  {key:'purpose',step:'01',tab:'사업 목적',title:'AI 도입으로 해결하고자 하는 3가지 문제',desc:'반복 기록업무 부담 완화 · 기록 품질과 일관성 확보 · 인력 운영 효율화',src:'assets/roadmap-purpose.webp'},
-  {key:'direction',step:'02',tab:'추진 방향',title:'사례관리 업무 프로세스 내 AI 도입',desc:'상담 기록과 사례정리 구간에 AI를 적용하고 최종 판단은 사람이 수행',src:'assets/roadmap-direction.webp'}
+  {key:'purpose',step:'01',tab:'사업 목적',title:'AI 도입으로 해결하고자 하는 3가지 문제',desc:'반복 기록업무 부담 완화 · 기록 품질과 일관성 확보 · 인력 운영 효율화',src:'assets/roadmap-purpose.svg'},
+  {key:'direction',step:'02',tab:'추진 방향',title:'사례관리 업무 프로세스 내 AI 도입',desc:'상담 기록과 사례정리 구간에 AI를 적용하고 최종 판단은 사람이 수행',src:'assets/roadmap-direction.svg'}
 ];
 let roadmapSlideIndex=0;
 
