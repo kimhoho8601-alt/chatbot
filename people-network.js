@@ -9,7 +9,7 @@ if(peopleSection){
   }));
 
   const roleLabel={
-    'TF LEADER':'운영 연결',
+    'TF LEADER':'TF 리더',
     'SUPPORT CORE':'설계 지원',
     'FIELD MEMBER':'현장 설계'
   };
@@ -55,10 +55,10 @@ if(peopleSection){
     #people .core-loop span{padding:5px 8px;border-radius:999px;background:#fff1f2;color:#bd161d;font-size:9px;font-weight:900}
     #people .core-loop i{font-style:normal;color:#c8a6aa;font-size:10px}
 
-    #people .network-member{--member-x:50%;--member-y:50%;position:absolute;left:var(--member-x);top:var(--member-y);transform:translate(-50%,-50%);width:192px;min-height:82px;border:1px solid #eadcdf;background:rgba(255,255,255,.96);border-radius:20px;padding:13px 14px;display:grid;grid-template-columns:42px minmax(0,1fr);gap:11px;align-items:center;z-index:2;box-shadow:0 9px 24px rgba(25,25,29,.05);transition:border-color .2s,box-shadow .2s,opacity .2s,scale .2s;animation:memberFloat 5.4s ease-in-out infinite;animation-delay:var(--member-delay);outline:none;cursor:default}
+    #people .network-member{--member-x:50%;--member-y:50%;position:absolute;left:var(--member-x);top:var(--member-y);transform:translate(-50%,-50%);width:192px;min-height:82px;border:1px solid #eadcdf;background:rgba(255,255,255,.96);border-radius:20px;padding:14px 18px;display:grid;grid-template-columns:minmax(0,1fr);align-items:center;z-index:2;box-shadow:0 9px 24px rgba(25,25,29,.05);transition:border-color .2s,box-shadow .2s,opacity .2s,scale .2s;animation:memberFloat 5.4s ease-in-out infinite;animation-delay:var(--member-delay);outline:none;cursor:default}
     #people .network-member:hover,#people .network-member:focus-visible,#people .network-member.active{border-color:#e51b23;box-shadow:0 16px 38px rgba(229,27,35,.14);scale:1.045;z-index:6;background:#fff}
     #people .people-network-canvas.is-interacting .network-member:not(.active){opacity:.42}
-    #people .member-avatar{width:42px;height:42px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(145deg,#fff0f1,#ffe5e7);border:1px solid #f3c7cb;color:#d71920;font-weight:900;font-size:13px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.7)}
+    #people .member-avatar{display:none!important}
     #people .member-copy{min-width:0}
     #people .member-role{display:flex;align-items:center;gap:5px;color:#aa6a6e;font-size:8px;font-weight:900;letter-spacing:.08em;white-space:nowrap}
     #people .member-role::before{content:'';width:5px;height:5px;border-radius:50%;background:#e51b23;box-shadow:0 0 0 4px rgba(229,27,35,.07)}
@@ -125,7 +125,7 @@ if(peopleSection){
     grid.innerHTML=`
       <div class="network-spokes" aria-hidden="true">${angles.map((a,i)=>`<i data-spoke="${i}" style="--a:${a}deg;--d:${(i*.16).toFixed(2)}s"></i>`).join('')}</div>
       <div class="network-core"><div><small>13 PEOPLE · ONE TEAM</small><strong>같이 만들고<br>같이 검증합니다.</strong><p>운영 · 현장 · 검증이 순환하는 공동 설계 구조</p><div class="core-loop"><span>현장</span><i>↔</i><span>설계</span><i>↔</i><span>검증</span></div></div></div>
-      ${members.map((m,i)=>`<article class="network-member" tabindex="0" data-member="${i}" style="--member-x:${positions[i][0]};--member-y:${positions[i][1]};--member-delay:${positions[i][2]}"><div class="member-avatar">${m.avatar}</div><div class="member-copy"><span class="member-role">${roleLabel[m.role]||'공동 설계'}</span><h3>${m.name}</h3><p title="${m.org}">${m.org}</p></div></article>`).join('')}`;
+      ${members.map((m,i)=>`<article class="network-member" tabindex="0" data-member="${i}" style="--member-x:${positions[i][0]};--member-y:${positions[i][1]};--member-delay:${positions[i][2]}"><div class="member-copy"><span class="member-role">${roleLabel[m.role]||'공동 설계'}</span><h3>${m.name}</h3><p title="${m.org}">${m.org}</p></div></article>`).join('')}`;
 
     const canvas=grid;
     const cards=[...canvas.querySelectorAll('.network-member')];
