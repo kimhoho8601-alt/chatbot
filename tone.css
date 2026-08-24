@@ -1,0 +1,124 @@
+/* Red + white visual layer for collaborative sections only.
+   Keeps the hero/other main sections unchanged. */
+
+/* =========================
+   KICK-OFF ALIGNMENT BOARD
+========================= */
+.alignment-board{
+  background:linear-gradient(180deg,#fff 0%,#fff9fa 100%)!important;
+  color:#151515!important;
+  border-top:1px solid #f1e3e5;
+  border-bottom:1px solid #f1e3e5;
+}
+.alignment-head h2{color:#111!important}
+.alignment-head p{color:#68686e!important}
+.proposal-pill{background:#fff1f2!important;border-color:#f4bfc3!important;color:#d71920!important}
+.live-state{color:#5f6268!important}
+.board-btn{background:#fff!important;border-color:#ead8db!important;color:#222!important;box-shadow:0 6px 18px rgba(0,0,0,.035)}
+.board-btn:hover{border-color:var(--red)!important;color:var(--red)!important}
+.board-btn.primary{background:var(--red)!important;border-color:var(--red)!important;color:#fff!important;box-shadow:0 10px 24px rgba(229,27,35,.15)}
+.board-btn.primary:hover{background:#cc1820!important;color:#fff!important}
+.board-btn.subtle{background:#fff!important;color:#222!important}
+
+.presence-panel{
+  border-color:#efdddf!important;
+  background:#fff!important;
+  box-shadow:0 8px 24px rgba(0,0,0,.035);
+}
+.presence-label strong{color:#222!important}
+.presence-label small,.presence-empty{color:#8a8d93!important}
+.presence-chip{border-color:#eadcdf!important;background:#fff8f9!important;color:#303036!important}
+.presence-chip b{background:linear-gradient(135deg,#e51b23,#ba1219)!important;color:#fff!important}
+.presence-count{color:#171717!important}
+
+.board-tabs button{border-color:#eadcdf!important;background:#fff!important;color:#55575d!important}
+.board-tabs button:hover{border-color:#efb7bc!important;color:var(--red)!important;background:#fff6f7!important}
+.board-tabs button.active{background:var(--red)!important;color:#fff!important;border-color:var(--red)!important;box-shadow:0 7px 18px rgba(229,27,35,.14)}
+.board-search{border-color:#eadcdf!important;background:#fff!important}
+.board-search span{color:#aaa!important}
+.board-search input{color:#222!important}
+.board-search input::placeholder{color:#9b9da2!important}
+
+.quick-compose{background:#fff!important;border-color:#eadcdf!important;box-shadow:0 8px 24px rgba(0,0,0,.035)}
+.quick-compose select,.quick-compose textarea{border-color:#eadcdf!important;background:#fff!important;color:#222!important;outline:none}
+.quick-compose select:focus,.quick-compose textarea:focus{border-color:var(--red)!important;box-shadow:0 0 0 4px rgba(229,27,35,.08)}
+.quick-compose textarea::placeholder{color:#a0a2a7!important}
+
+.align-col{
+  background:#fff!important;
+  border-color:#eadcdf!important;
+  box-shadow:0 10px 28px rgba(0,0,0,.04);
+  position:relative;
+}
+.align-col::before{content:"";display:block;height:4px;background:var(--red);position:absolute;left:0;right:0;top:0;z-index:2}
+.align-col header{border-bottom-color:#f3e5e7!important;background:linear-gradient(180deg,#fff 0%,#fffafb 100%)!important}
+.align-col h3{color:#181818!important;word-break:keep-all}
+.align-col header p{color:#7c7f85!important;word-break:keep-all}
+.col-count{color:var(--red)!important;font-weight:900}
+.note-list{background:#fff!important}
+.board-note{background:#fff9fa!important;border-color:#efdddf!important;box-shadow:0 6px 18px rgba(0,0,0,.03)}
+.board-note:hover{border-color:#e9aeb3!important;box-shadow:0 9px 24px rgba(229,27,35,.07)}
+.note-icon{background:#fff0f1!important;color:var(--red)!important}
+.note-body p{color:#252529!important}
+.author-chip{color:#777a80!important}
+.like-btn,.edit-btn,.delete-btn{color:#74777d!important}
+.like-btn.liked{color:var(--red)!important;background:#fff0f1!important}
+.edit-btn:hover,.delete-btn:hover,.like-btn:hover{background:#fff0f1!important;color:var(--red)!important}
+.inline-add{border-color:#e8d5d8!important;color:#83868c!important;background:#fff!important}
+.inline-add:hover{border-color:var(--red)!important;color:var(--red)!important;background:#fff7f8!important}
+.empty-note{border-color:#ead9dc!important;background:#fffafb!important;color:#8d8f95!important}
+.empty-note strong{color:#666970!important}
+
+.board-insights{border-color:#eadcdf!important;background:#fff!important;box-shadow:0 10px 28px rgba(0,0,0,.035)}
+.board-insights>div{border-right-color:#f0e2e4!important}
+.insight-icon{background:#fff0f1!important;color:var(--red)!important}
+.insight-title h3,.insight-card strong,.insight-action strong{color:#1b1b1d!important}
+.insight-title p,.insight-card small,.insight-action small{color:#84878d!important}
+.insight-card span,.insight-action span{color:var(--red)!important}
+.board-footerline{color:#8a8d93!important}
+.text-btn{color:#686b71!important}
+.text-btn:hover{color:var(--red)!important}
+.board-toast{background:#fff!important;color:#161616!important;border:1px solid #eadcdf;box-shadow:0 18px 50px rgba(0,0,0,.12)}
+
+.alignment-board.presentation{background:#fff9fa!important}
+.alignment-board.presentation .align-col{background:#fff!important}
+
+/* =========================
+   ROADMAP SECTION
+========================= */
+.roadmap{
+  background:linear-gradient(180deg,#fff 0%,#fff9fa 100%)!important;
+  color:#171717!important;
+  border-top:1px solid #f1e3e5;
+  border-bottom:1px solid #f1e3e5;
+}
+.roadmap .section-head.light .section-no{color:#9b9ba1!important}
+.roadmap .section-head .kicker{color:var(--red)!important}
+.roadmap .section-head h2{color:#111!important}
+.road-tabs{border-bottom-color:#eadcdf!important}
+.road-tab{color:#87898f!important}
+.road-tab:hover{color:var(--red)!important}
+.road-tab.active{color:#171717!important;border-color:var(--red)!important}
+.stage-badge{border-color:#efcfd2!important;background:#fff!important;color:var(--red)!important;box-shadow:0 8px 22px rgba(229,27,35,.05)}
+.stage-panel>div:nth-child(2)>p:first-child{color:#8d9096!important}
+.stage-panel h3{color:#171717!important}
+.stage-panel>div:nth-child(2)>p:last-child{color:#696c72!important}
+.stage-panel li{border-color:#eadcdf!important;background:#fff!important;color:#27272b!important;box-shadow:0 6px 18px rgba(0,0,0,.025)}
+.roadmap .note{color:#7c7f85!important}
+
+/* Week 1 clickable purpose/direction card injected by roadmap-detail.js */
+#stageList li.roadmap-detail-item{border-color:#f0cfd3!important;background:#fff8f9!important;box-shadow:0 8px 22px rgba(229,27,35,.05)}
+.roadmap .roadmap-detail-card{color:#222!important;background:transparent!important}
+.roadmap .roadmap-detail-card:hover,.roadmap .roadmap-detail-card:focus-visible{background:#fff0f1!important;box-shadow:0 0 0 1px var(--red) inset!important}
+.roadmap .roadmap-detail-chip{border-color:#efdadd!important;background:#fff!important;color:#55585e!important}
+.roadmap .roadmap-detail-chip:hover{border-color:var(--red)!important;color:var(--red)!important;background:#fff4f5!important}
+.roadmap .roadmap-detail-card>small{color:var(--red)!important}
+
+/* responsive consistency */
+@media(max-width:1200px){
+  .board-insights>div{border-bottom-color:#f0e2e4!important}
+}
+@media(max-width:700px){
+  .alignment-board{padding-top:70px!important}
+  .align-col{box-shadow:none}
+}
