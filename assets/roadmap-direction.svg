@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
+<rect width="1280" height="720" fill="#fff"/>
+<path d="M0 0H835L820 20H0Z" fill="#df171d"/><path d="M835 0H1280V20H820Z" fill="#d9d4c8"/>
+<rect y="20" width="1280" height="76" fill="#f4f2ef"/><text x="40" y="70" font-family="Pretendard,Noto Sans KR,sans-serif" font-size="35" font-weight="700">AI 도입의 활용 방안 : 사례관리 업무 프로세스 내 도입</text>
+<!-- process arrow -->
+<path d="M42 230H1140V190L1245 315 1140 440V400H42Z" fill="#f3f2ef"/>
+<!-- labels -->
+<g font-family="Pretendard,Noto Sans KR,sans-serif" font-size="24" text-anchor="middle"><rect x="135" y="165" width="100" height="40" rx="7" fill="#d8d3c7"/><text x="185" y="193">이동</text><rect x="438" y="165" width="100" height="40" rx="7" fill="#d8d3c7"/><text x="488" y="193">상담</text><rect x="744" y="165" width="100" height="40" rx="7" fill="#df171d"/><text x="794" y="193" fill="#fff">사례정리</text><rect x="1044" y="165" width="110" height="40" rx="7" fill="#d8d3c7"/><text x="1099" y="193">의사결정</text></g>
+<!-- focus circles -->
+<circle cx="488" cy="292" r="126" fill="#fff8d9" fill-opacity=".82" stroke="#111" stroke-width="3" stroke-dasharray="8 6"/>
+<circle cx="794" cy="292" r="126" fill="#fff8d9" fill-opacity=".82" stroke="#111" stroke-width="3" stroke-dasharray="8 6"/>
+<!-- car -->
+<g fill="#000"><path d="M130 300h18l20-24h50l26 24h18c10 0 18 8 18 18v10h-12a25 25 0 0 0-48 0h-38a25 25 0 0 0-48 0h-22v-10c0-10 8-18 18-18zm44-15-13 15h70l-17-15z"/><circle cx="157" cy="330" r="16"/><circle cx="244" cy="330" r="16"/></g>
+<!-- counseling -->
+<g fill="#000"><circle cx="455" cy="276" r="12"/><circle cx="520" cy="276" r="12"/><rect x="470" y="308" width="36" height="9"/><path d="M447 290h16v36h-9v28h-10v-41h-6v-15zM512 290h16v36h-9v28h-10v-41h-6v-15z"/><rect x="465" y="319" width="45" height="8"/></g>
+<!-- AI person/laptop -->
+<g fill="none" stroke="#000" stroke-width="6" stroke-linecap="round"><circle cx="794" cy="260" r="23" fill="#000"/><path d="M761 285q33-30 66 0v67h-66z"/><rect x="755" y="334" width="78" height="44" rx="4" fill="#000"/><path d="M780 349l-10 10 10 10M808 349l10 10-10 10" stroke="#fff" stroke-width="4"/></g>
+<!-- decision person/gavel -->
+<g fill="#000"><circle cx="1098" cy="263" r="23"/><path d="M1062 303q36-38 72 0v71h-72z"/><rect x="1030" y="318" width="34" height="11" rx="3" transform="rotate(-35 1047 323)"/><rect x="1021" y="307" width="23" height="18" rx="3" transform="rotate(-35 1032 316)"/></g>
+<g font-family="Pretendard,Noto Sans KR,sans-serif" font-size="18" fill="#222"><text x="420" y="440">① 상담 내용 기록</text><text x="420" y="465">② 주변 관찰 기록</text><text x="700" y="440">① 상담 기록 요약/정리</text><text x="700" y="465">② 서비스 계획 수립</text></g>
+<text x="1010" y="445" font-family="Pretendard,Noto Sans KR,sans-serif" font-size="18" fill="#df171d">최종 판단은 “팀장/상담원”</text>
+<!-- connector and timing -->
+<path d="M488 480v45h306v-45M640 525v42" fill="none" stroke="#222" stroke-width="2"/>
+<text x="640" y="600" text-anchor="middle" font-family="Pretendard,Noto Sans KR,sans-serif" font-size="20">“사례정리”의 경우 사례의 복잡성·난이도에 따라 <tspan fill="#df171d">1~2시간</tspan> 소요</text>
+<!-- bottom actions -->
+<rect x="225" y="625" width="390" height="66" rx="14" fill="#f3f1ee" stroke="#d4d1cc"/><text x="420" y="653" text-anchor="middle" font-family="Pretendard,Noto Sans KR,sans-serif" font-size="21">① 상담 시 <tspan fill="#df171d">“전사 + 녹취”</tspan>를 지원</text><text x="420" y="678" text-anchor="middle" font-family="Pretendard,Noto Sans KR,sans-serif" font-size="14">(전체 상황을 기록·요약 + 현장 대응력 향상)</text>
+<rect x="662" y="625" width="390" height="66" rx="14" fill="#df171d"/><text x="857" y="653" text-anchor="middle" font-family="Pretendard,Noto Sans KR,sans-serif" font-size="21" fill="#fff">② 기록·요약·초안작성 시 AI 적용</text><text x="857" y="678" text-anchor="middle" font-family="Pretendard,Noto Sans KR,sans-serif" font-size="14" fill="#fff36a">(1시간 → 10분 내외로 업무시간 약 83.3% 단축)</text>
+</svg>
