@@ -1,3 +1,5 @@
+import './board-avatars.js';
+
 const peopleCanvas=document.querySelector('#people .people-network-canvas');
 
 if(peopleCanvas){
