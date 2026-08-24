@@ -1,3 +1,5 @@
+import './topic-insights.js';
+
 const board=document.getElementById('board');
 const originalPresentationBtn=document.getElementById('presentationBtn');
 
@@ -110,6 +112,9 @@ if(board&&originalPresentationBtn){
       .presentation-exit-dock span{font-size:10px}
       .presentation-exit-dock button{min-height:46px;padding:0 18px}
     }
+
+    /* Topic-specific insights replace the global insight strip during presentation. */
+    #board.presentation .board-insights{display:none!important}
   `;
   document.head.appendChild(style);
 
