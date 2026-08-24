@@ -11,3 +11,8 @@
 @media(max-width:1280px){.agreement-grid{grid-template-columns:1fr}.principle-card{min-height:210px}.principle-card h4{font-size:20px}.agreement-name-row{grid-template-columns:auto 1fr 220px}}
 @media(max-width:900px){.agreement-live-head{display:block}.agreement-progress{margin-top:16px}.agreement-name-row{grid-template-columns:1fr}.agreement-name-row select{width:100%}.deliverable-board{grid-template-columns:1fr}.deliverable-compose{grid-template-columns:1fr}.deliverable-add{min-height:44px}.deliverable-lane{min-height:320px}}
 @media(max-width:640px){.agreement-live{padding:22px}.principle-card{min-height:0;padding:18px}.principle-top{padding-right:0}.principle-count{position:static;display:block;margin:10px 0 0 58px}.principle-card h4{font-size:18px;white-space:normal;word-break:keep-all}.agree-people{margin-top:16px}.agenda li{grid-template-columns:38px minmax(0,1fr)!important;column-gap:12px!important;padding:16px 0!important}.agenda li::before{width:34px;height:34px;border-radius:10px}.agenda li>.agenda-action{grid-template-columns:1fr!important;gap:8px!important}.agenda-action .agenda-open{justify-self:start}.deliverable-shell{width:calc(100% - 22px);padding-top:18px}.deliverable-head h2{font-size:34px}}
+
+/* WHY headline: preserve phrase boundaries */
+#why .why-grid>div:nth-child(2) h2{word-break:keep-all!important;overflow-wrap:normal!important;line-break:strict!important;text-wrap:balance;max-width:10.5em}
+@media(max-width:1024px){#why .why-grid>div:nth-child(2) h2{max-width:12em}}
+@media(max-width:640px){#why .why-grid>div:nth-child(2) h2{max-width:100%;font-size:36px}}
