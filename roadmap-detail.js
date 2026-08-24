@@ -79,6 +79,8 @@ function decorateRoadmapStageList(){
 }
 
 installRoadmapDetailStyles();ensureRoadmapModal();decorateRoadmapStageList();
+const toneLink=document.querySelector('link[data-sck-tone]')||document.createElement('link');
+if(!toneLink.dataset.sckTone){toneLink.rel='stylesheet';toneLink.href='tone.css';toneLink.dataset.sckTone='1';document.head.appendChild(toneLink)}
 const stageList=document.getElementById('stageList');
 stageList?.addEventListener('click',e=>{const target=e.target.closest('[data-roadmap-open]');if(!target)return;e.preventDefault();e.stopPropagation();openRoadmapDetail(Number(target.dataset.roadmapOpen)||0)});
 stageList?.addEventListener('keydown',e=>{if(e.key!=='Enter'&&e.key!==' ')return;const target=e.target.closest('.roadmap-detail-card[data-roadmap-open]');if(!target)return;e.preventDefault();openRoadmapDetail(Number(target.dataset.roadmapOpen)||0)});
