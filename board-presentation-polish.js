@@ -1,4 +1,5 @@
 import './topic-insights.js';
+import './board-four-topics.js';
 
 const board=document.getElementById('board');
 const originalPresentationBtn=document.getElementById('presentationBtn');
