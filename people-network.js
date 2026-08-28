@@ -124,7 +124,7 @@ if(peopleSection){
     grid.className='people-network-canvas reveal visible';
     grid.innerHTML=`
       <div class="network-spokes" aria-hidden="true">${angles.map((a,i)=>`<i data-spoke="${i}" style="--a:${a}deg;--d:${(i*.16).toFixed(2)}s"></i>`).join('')}</div>
-      <div class="network-core"><div><small>13 PEOPLE · ONE TEAM</small><strong>같이 만들고<br>같이 검증합니다.</strong><p>운영 · 현장 · 검증이 순환하는 공동 설계 구조</p><div class="core-loop"><span>현장</span><i>↔</i><span>설계</span><i>↔</i><span>검증</span></div></div></div>
+      <div class="network-core"><div><small>13 PEOPLE · ONE TEAM</small><strong>같이 만들고<br>검증합니다.</strong><p>운영 · 현장 · 검증이 순환하는 공동 설계 구조</p><div class="core-loop"><span>현장</span><i>↔</i><span>설계</span><i>↔</i><span>검증</span></div></div></div>
       ${members.map((m,i)=>`<article class="network-member" tabindex="0" data-member="${i}" style="--member-x:${positions[i][0]};--member-y:${positions[i][1]};--member-delay:${positions[i][2]}"><div class="member-copy"><span class="member-role">${roleLabel[m.role]||'공동 설계'}</span><h3>${m.name}</h3><p title="${m.org}">${m.org}</p></div></article>`).join('')}`;
 
     const canvas=grid;
