@@ -87,8 +87,10 @@ if(board){
   const presentationBtn=document.getElementById('presentationBtn');
   presentationBtn?.addEventListener('click',()=>{
     if(!board.classList.contains('presentation')){
-      const current=activeTopic();
-      if(!topicOrder.includes(current))board.querySelector('.board-tabs button[data-filter="ground"]')?.click();
+      const activeFilter=board.querySelector('.board-tabs button.active[data-filter]')?.dataset.filter||'all';
+      if(activeFilter==='all'||!topicOrder.includes(activeFilter)){
+        board.querySelector('.board-tabs button[data-filter="ground"]')?.click();
+      }
     }
     requestAnimationFrame(()=>requestAnimationFrame(patchPresentationMeta));
   },true);
