@@ -1,88 +1,95 @@
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+
+const SUPABASE_URL='https://tedbkobhltarqibjhfhk.supabase.co';
+const SUPABASE_KEY='sb_publishable_CS5rpk5S1eYBFxyUzCQ63w_NzPpwOZ2';
+const WORKSHOP='sck-ai-tf-2026';
+const supabase=createClient(SUPABASE_URL,SUPABASE_KEY);
+
 const roadmapSlides=[
   {key:'purpose',step:'01',tab:'사업 목적',title:'AI 도입으로 해결하고자 하는 3가지 문제',desc:'반복 기록업무 부담 완화 · 기록 품질과 일관성 확보 · 인력 운영 효율화',src:'assets/roadmap-purpose.svg'},
   {key:'direction',step:'02',tab:'추진 방향',title:'사례관리 업무 프로세스 내 AI 도입',desc:'상담 기록과 사례정리 구간에 AI를 적용하고 최종 판단은 사람이 수행',src:'assets/roadmap-direction.svg'}
 ];
 let roadmapSlideIndex=0;
 
+const tfMembers=['김홍섭','이영선','최현지','최예린','이호열','서종호','백예원','전현지','이예진','이슬기','김지원','김현주','김자연'];
+const tfRoles=[
+  {key:'reminder',no:'01',title:'소집·리마인더',tag:'CALL',desc:'다음 모임 일정과 사전 준비사항을 안내하고, 회의 전에 구성원들이 놓치지 않도록 챙깁니다.'},
+  {key:'timekeeper',no:'02',title:'타임키퍼',tag:'TIME',desc:'안건별 시간을 확인하고 5분 전·1분 전을 알려 정해진 시간 안에 결론까지 갈 수 있도록 돕습니다.'},
+  {key:'facilitator',no:'03',title:'논의 진행자',tag:'FLOW',desc:'오늘의 질문을 중심으로 논의를 이끌고, 의견이 한쪽에 몰리거나 논점이 벗어나지 않도록 흐름을 잡습니다.'},
+  {key:'recorder',no:'04',title:'결정·기록 담당',tag:'DECIDE',desc:'단순 회의록보다 합의한 기준, 보류한 내용, 추가 확인사항처럼 오늘 결정된 것을 분명하게 남깁니다.'},
+  {key:'tracker',no:'05',title:'액션 트래커',tag:'NEXT',desc:'누가 무엇을 언제까지 할지 확인하고, 다음 모임에서 지난 액션의 진행상황을 다시 연결합니다.'}
+];
+let roleAssignments=[];
+
 function installRoadmapDetailStyles(){
   if(document.getElementById('roadmap-detail-styles'))return;
   const style=document.createElement('style');style.id='roadmap-detail-styles';style.textContent=`
-    #stageList li.roadmap-detail-item{padding:0!important;overflow:visible;border-color:#45464c;background:#17181b}
-    .roadmap-detail-card{width:100%;min-height:100%;background:transparent;color:#fff;text-align:left;padding:14px 15px;display:flex;flex-direction:column;gap:10px;cursor:pointer;border-radius:15px;transition:.2s;outline:none}
-    .roadmap-detail-card:hover,.roadmap-detail-card:focus-visible{background:#202126;box-shadow:0 0 0 1px #ef2027 inset;transform:translateY(-1px)}
-    .roadmap-detail-card>span{font-weight:800;word-break:keep-all;line-height:1.4}
+    #stageList li.roadmap-detail-item,#stageList li.tf-role-item{padding:0!important;overflow:visible;border-color:#45464c;background:#17181b}
+    .roadmap-detail-card,.tf-role-trigger{width:100%;min-height:100%;background:transparent;color:#fff;text-align:left;padding:14px 15px;display:flex;flex-direction:column;gap:10px;cursor:pointer;border-radius:15px;transition:.2s;outline:none;border:0;font:inherit}
+    .roadmap-detail-card:hover,.roadmap-detail-card:focus-visible,.tf-role-trigger:hover,.tf-role-trigger:focus-visible{background:#202126;box-shadow:0 0 0 1px #ef2027 inset;transform:translateY(-1px)}
+    .roadmap-detail-card>span,.tf-role-trigger>span{font-weight:800;word-break:keep-all;line-height:1.4}
     .roadmap-detail-chips{display:flex;gap:7px;flex-wrap:wrap}
     .roadmap-detail-chip{border:1px solid #3b3d43;background:#101115;color:#b9bbc1;border-radius:999px;padding:5px 9px;font-size:9px;font-weight:900;letter-spacing:.02em;cursor:pointer}
     .roadmap-detail-chip:hover{border-color:#ef2027;color:#fff;background:#2a1114}
-    .roadmap-detail-card>small{font-size:9px;color:#ff555b;font-weight:900;letter-spacing:.04em}
+    .roadmap-detail-card>small,.tf-role-trigger>small{font-size:9px;color:#ff555b;font-weight:900;letter-spacing:.04em}
     .roadmap-detail-overlay{position:fixed;inset:0;z-index:5000;display:none;background:rgba(4,5,7,.92);backdrop-filter:blur(12px);padding:16px;color:#fff}
     .roadmap-detail-overlay.open{display:grid;place-items:center}
     .roadmap-detail-dialog{width:min(1500px,calc(100vw - 32px));height:min(930px,calc(100vh - 32px));background:#111216;border:1px solid #303138;border-radius:26px;box-shadow:0 36px 120px rgba(0,0,0,.46);overflow:hidden;display:grid;grid-template-rows:auto 1fr auto}
     .roadmap-detail-head{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:20px;align-items:center;padding:18px 22px 14px;border-bottom:1px solid #292a30;background:#15161a}
-    .roadmap-detail-head small{display:block;color:#ff4b51;font-weight:900;letter-spacing:.14em;font-size:9px;margin-bottom:4px}
-    .roadmap-detail-head h3{margin:0;font-size:clamp(21px,2.2vw,32px);letter-spacing:-.035em;word-break:keep-all}
-    .roadmap-detail-head p{margin:4px 0 0;color:#8f9198;font-size:11px;word-break:keep-all}
-    .roadmap-detail-close{width:44px;height:44px;border-radius:13px;border:1px solid #35363d;background:#1c1d22;color:#fff;font-size:22px;cursor:pointer}
-    .roadmap-detail-body{min-height:0;display:grid;grid-template-rows:auto 1fr;background:#0b0c0f}
-    .roadmap-detail-tabs{display:flex;justify-content:center;gap:8px;padding:12px 18px 8px}
-    .roadmap-detail-tab{border:1px solid #303139;background:#17181d;color:#9b9da5;border-radius:999px;min-height:38px;padding:0 16px;font-size:11px;font-weight:900;cursor:pointer}
-    .roadmap-detail-tab.active{background:#ef2027;border-color:#ef2027;color:#fff;box-shadow:0 8px 24px rgba(239,32,39,.2)}
-    .roadmap-detail-stage{min-height:0;padding:6px 18px 14px;display:flex;align-items:center;justify-content:center;position:relative}
-    .roadmap-detail-image-frame{width:100%;height:100%;min-height:0;background:#fff;border-radius:15px;overflow:hidden;display:flex;align-items:center;justify-content:center;box-shadow:0 16px 55px rgba(0,0,0,.28)}
-    .roadmap-detail-image{display:block;width:auto;height:auto;max-width:100%;max-height:100%;object-fit:contain}
-    .roadmap-detail-arrow{position:absolute;top:50%;transform:translateY(-50%);width:48px;height:48px;border-radius:50%;border:1px solid rgba(255,255,255,.18);background:rgba(10,11,14,.84);color:#fff;font-size:21px;cursor:pointer;z-index:2;backdrop-filter:blur(8px)}
-    .roadmap-detail-arrow:hover{background:#ef2027;border-color:#ef2027}.roadmap-detail-prev{left:30px}.roadmap-detail-next{right:30px}
-    .roadmap-detail-foot{display:grid;grid-template-columns:1fr auto 1fr;gap:18px;align-items:center;padding:12px 22px 14px;border-top:1px solid #292a30;background:#15161a}
-    .roadmap-detail-caption strong{display:block;font-size:13px;word-break:keep-all}.roadmap-detail-caption span{display:block;margin-top:2px;color:#84868d;font-size:10px;word-break:keep-all}
-    .roadmap-detail-page{font-size:12px;font-weight:900;color:#b7b9bf;letter-spacing:.08em;text-align:center}.roadmap-detail-help{justify-self:end;color:#6e7077;font-size:9px;white-space:nowrap}
-    body.roadmap-detail-open{overflow:hidden}
-    @media(max-width:800px){.roadmap-detail-overlay{padding:8px}.roadmap-detail-dialog{width:calc(100vw - 16px);height:calc(100vh - 16px);border-radius:18px}.roadmap-detail-head{padding:14px}.roadmap-detail-head p{display:none}.roadmap-detail-tabs{justify-content:flex-start;overflow-x:auto}.roadmap-detail-stage{padding:4px 8px 10px}.roadmap-detail-arrow{width:40px;height:40px}.roadmap-detail-prev{left:14px}.roadmap-detail-next{right:14px}.roadmap-detail-foot{grid-template-columns:1fr auto;padding:10px 14px}.roadmap-detail-help{display:none}.roadmap-detail-caption span{display:none}}
+    .roadmap-detail-head small{display:block;color:#ff4b51;font-weight:900;letter-spacing:.14em;font-size:9px;margin-bottom:4px}.roadmap-detail-head h3{margin:0;font-size:clamp(21px,2.2vw,32px);letter-spacing:-.035em;word-break:keep-all}.roadmap-detail-head p{margin:4px 0 0;color:#8f9198;font-size:11px;word-break:keep-all}.roadmap-detail-close{width:44px;height:44px;border-radius:13px;border:1px solid #35363d;background:#1c1d22;color:#fff;font-size:22px;cursor:pointer}
+    .roadmap-detail-body{min-height:0;display:grid;grid-template-rows:auto 1fr;background:#0b0c0f}.roadmap-detail-tabs{display:flex;justify-content:center;gap:8px;padding:12px 18px 8px}.roadmap-detail-tab{border:1px solid #303139;background:#17181d;color:#9b9da5;border-radius:999px;min-height:38px;padding:0 16px;font-size:11px;font-weight:900;cursor:pointer}.roadmap-detail-tab.active{background:#ef2027;border-color:#ef2027;color:#fff;box-shadow:0 8px 24px rgba(239,32,39,.2)}.roadmap-detail-stage{min-height:0;padding:6px 18px 14px;display:flex;align-items:center;justify-content:center;position:relative}.roadmap-detail-image-frame{width:100%;height:100%;min-height:0;background:#fff;border-radius:15px;overflow:hidden;display:flex;align-items:center;justify-content:center;box-shadow:0 16px 55px rgba(0,0,0,.28)}.roadmap-detail-image{display:block;width:auto;height:auto;max-width:100%;max-height:100%;object-fit:contain}.roadmap-detail-arrow{position:absolute;top:50%;transform:translateY(-50%);width:48px;height:48px;border-radius:50%;border:1px solid rgba(255,255,255,.18);background:rgba(10,11,14,.84);color:#fff;font-size:21px;cursor:pointer;z-index:2;backdrop-filter:blur(8px)}.roadmap-detail-arrow:hover{background:#ef2027;border-color:#ef2027}.roadmap-detail-prev{left:30px}.roadmap-detail-next{right:30px}.roadmap-detail-foot{display:grid;grid-template-columns:1fr auto 1fr;gap:18px;align-items:center;padding:12px 22px 14px;border-top:1px solid #292a30;background:#15161a}.roadmap-detail-caption strong{display:block;font-size:13px;word-break:keep-all}.roadmap-detail-caption span{display:block;margin-top:2px;color:#84868d;font-size:10px;word-break:keep-all}.roadmap-detail-page{font-size:12px;font-weight:900;color:#b7b9bf;letter-spacing:.08em;text-align:center}.roadmap-detail-help{justify-self:end;color:#6e7077;font-size:9px;white-space:nowrap}
+    .tf-role-overlay{position:fixed;inset:0;z-index:5100;display:none;background:rgba(4,5,7,.9);backdrop-filter:blur(12px);padding:18px}.tf-role-overlay.open{display:grid;place-items:center}.tf-role-dialog{width:min(1180px,calc(100vw - 36px));max-height:calc(100vh - 36px);overflow:auto;background:#f7f7f5;color:#151515;border-radius:28px;box-shadow:0 38px 120px rgba(0,0,0,.4)}.tf-role-head{position:sticky;top:0;z-index:4;display:flex;justify-content:space-between;align-items:flex-start;gap:24px;padding:28px 30px 22px;border-bottom:1px solid #dededb;background:rgba(247,247,245,.96);backdrop-filter:blur(12px)}.tf-role-head small{display:block;margin-bottom:7px;color:#e51b23;font-size:10px;font-weight:900;letter-spacing:.15em}.tf-role-head h3{margin:0;font-size:clamp(27px,3vw,40px);letter-spacing:-.045em;word-break:keep-all;text-wrap:balance}.tf-role-head p{margin:8px 0 0;color:#707277;font-size:13px;line-height:1.65;word-break:keep-all}.tf-role-close{flex:0 0 44px;width:44px;height:44px;border:1px solid #d5d5d2;border-radius:14px;background:#fff;font-size:23px;cursor:pointer}.tf-role-board{display:grid;gap:12px;padding:24px 30px 30px}.tf-role-card{display:grid;grid-template-columns:68px minmax(0,1.15fr) minmax(340px,.85fr);gap:22px;align-items:center;padding:22px;border:1px solid #dededb;border-radius:22px;background:#fff;box-shadow:0 10px 28px rgba(0,0,0,.035)}.tf-role-index{align-self:stretch;display:flex;flex-direction:column;justify-content:space-between;padding-right:16px;border-right:1px solid #ececea}.tf-role-index b{font:800 27px/1 Manrope,sans-serif;color:#e51b23}.tf-role-index span{font:800 8px/1 Manrope,sans-serif;letter-spacing:.12em;color:#a1a3a7}.tf-role-copy h4{margin:0 0 7px;font-size:19px;letter-spacing:-.025em}.tf-role-copy p{margin:0;color:#6c6f74;font-size:13px;line-height:1.65;word-break:keep-all;text-wrap:pretty}.tf-role-assign{display:grid;gap:10px}.tf-role-assignees{display:flex;gap:7px;flex-wrap:wrap;min-height:35px;align-items:center}.tf-role-person{display:inline-flex;align-items:center;gap:7px;padding:8px 10px;border-radius:999px;background:#18191b;color:#fff;font-size:11px;font-weight:800}.tf-role-person button{display:grid;place-items:center;width:17px;height:17px;padding:0;border:0;border-radius:50%;background:#34363a;color:#fff;cursor:pointer;font-size:11px}.tf-role-empty{color:#a0a2a6;font-size:11px}.tf-role-picker{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px}.tf-role-picker select{min-width:0;height:42px;padding:0 12px;border:1px solid #d5d5d2;border-radius:12px;background:#fff;font-weight:700}.tf-role-add{min-width:88px;border:0;border-radius:12px;background:#e51b23;color:#fff;font-weight:800;cursor:pointer}.tf-role-add:disabled,.tf-role-picker select:disabled{opacity:.35;cursor:not-allowed}.tf-role-limit{color:#999;font-size:10px}.tf-role-live{display:inline-flex;align-items:center;gap:7px;margin-top:10px;color:#7b7d82;font-size:10px}.tf-role-live i{width:7px;height:7px;border-radius:50%;background:#29b76e;box-shadow:0 0 0 5px rgba(41,183,110,.1)}
+    body.roadmap-detail-open,body.tf-role-open{overflow:hidden}
+    @media(max-width:800px){.roadmap-detail-overlay{padding:8px}.roadmap-detail-dialog{width:calc(100vw - 16px);height:calc(100vh - 16px);border-radius:18px}.roadmap-detail-head{padding:14px}.roadmap-detail-head p{display:none}.roadmap-detail-tabs{justify-content:flex-start;overflow-x:auto}.roadmap-detail-stage{padding:4px 8px 10px}.roadmap-detail-arrow{width:40px;height:40px}.roadmap-detail-prev{left:14px}.roadmap-detail-next{right:14px}.roadmap-detail-foot{grid-template-columns:1fr auto;padding:10px 14px}.roadmap-detail-help{display:none}.roadmap-detail-caption span{display:none}.tf-role-overlay{padding:8px}.tf-role-dialog{width:calc(100vw - 16px);max-height:calc(100vh - 16px);border-radius:20px}.tf-role-head{padding:20px 18px 16px}.tf-role-board{padding:16px}.tf-role-card{grid-template-columns:48px minmax(0,1fr);gap:14px;padding:18px}.tf-role-assign{grid-column:1/-1;padding-top:6px}.tf-role-index{padding-right:10px}.tf-role-picker{grid-template-columns:1fr auto}}
+    @media(max-width:520px){.tf-role-card{grid-template-columns:1fr}.tf-role-index{display:flex;flex-direction:row;align-items:center;border-right:0;border-bottom:1px solid #ececea;padding:0 0 10px}.tf-role-assign{grid-column:auto}.tf-role-picker{grid-template-columns:1fr}.tf-role-add{height:42px}}
   `;document.head.appendChild(style);
 }
 
 function ensureRoadmapModal(){
   if(document.getElementById('roadmapDetailOverlay'))return;
-  const overlay=document.createElement('div');overlay.id='roadmapDetailOverlay';overlay.className='roadmap-detail-overlay';overlay.setAttribute('role','dialog');overlay.setAttribute('aria-modal','true');overlay.innerHTML=`
-    <div class="roadmap-detail-dialog">
-      <header class="roadmap-detail-head"><div><small>WEEK 1 · PURPOSE & DIRECTION</small><h3 id="roadmapDetailTitle"></h3><p id="roadmapDetailDesc"></p></div><button type="button" class="roadmap-detail-close" id="roadmapDetailClose" aria-label="닫기">×</button></header>
-      <div class="roadmap-detail-body"><div class="roadmap-detail-tabs" id="roadmapDetailTabs"></div><div class="roadmap-detail-stage"><button type="button" class="roadmap-detail-arrow roadmap-detail-prev" id="roadmapDetailPrev" aria-label="이전 페이지">←</button><div class="roadmap-detail-image-frame"><img class="roadmap-detail-image" id="roadmapDetailImage" alt="" /></div><button type="button" class="roadmap-detail-arrow roadmap-detail-next" id="roadmapDetailNext" aria-label="다음 페이지">→</button></div></div>
-      <footer class="roadmap-detail-foot"><div class="roadmap-detail-caption"><strong id="roadmapDetailCaption"></strong><span id="roadmapDetailCaptionSub"></span></div><div class="roadmap-detail-page" id="roadmapDetailPage"></div><div class="roadmap-detail-help">← → 페이지 이동 · ESC 닫기</div></footer>
-    </div>`;
-  document.body.appendChild(overlay);
-  overlay.addEventListener('click',e=>{if(e.target===overlay)closeRoadmapDetail()});
-  document.getElementById('roadmapDetailClose').addEventListener('click',closeRoadmapDetail);
-  document.getElementById('roadmapDetailPrev').addEventListener('click',()=>showRoadmapSlide(roadmapSlideIndex-1));
-  document.getElementById('roadmapDetailNext').addEventListener('click',()=>showRoadmapSlide(roadmapSlideIndex+1));
-  document.getElementById('roadmapDetailTabs').addEventListener('click',e=>{const b=e.target.closest('[data-roadmap-index]');if(b)showRoadmapSlide(Number(b.dataset.roadmapIndex))});
+  const overlay=document.createElement('div');overlay.id='roadmapDetailOverlay';overlay.className='roadmap-detail-overlay';overlay.setAttribute('role','dialog');overlay.setAttribute('aria-modal','true');overlay.innerHTML=`<div class="roadmap-detail-dialog"><header class="roadmap-detail-head"><div><small>WEEK 1 · PURPOSE & DIRECTION</small><h3 id="roadmapDetailTitle"></h3><p id="roadmapDetailDesc"></p></div><button type="button" class="roadmap-detail-close" id="roadmapDetailClose" aria-label="닫기">×</button></header><div class="roadmap-detail-body"><div class="roadmap-detail-tabs" id="roadmapDetailTabs"></div><div class="roadmap-detail-stage"><button type="button" class="roadmap-detail-arrow roadmap-detail-prev" id="roadmapDetailPrev" aria-label="이전 페이지">←</button><div class="roadmap-detail-image-frame"><img class="roadmap-detail-image" id="roadmapDetailImage" alt="" /></div><button type="button" class="roadmap-detail-arrow roadmap-detail-next" id="roadmapDetailNext" aria-label="다음 페이지">→</button></div></div><footer class="roadmap-detail-foot"><div class="roadmap-detail-caption"><strong id="roadmapDetailCaption"></strong><span id="roadmapDetailCaptionSub"></span></div><div class="roadmap-detail-page" id="roadmapDetailPage"></div><div class="roadmap-detail-help">← → 페이지 이동 · ESC 닫기</div></footer></div>`;
+  document.body.appendChild(overlay);overlay.addEventListener('click',e=>{if(e.target===overlay)closeRoadmapDetail()});document.getElementById('roadmapDetailClose').addEventListener('click',closeRoadmapDetail);document.getElementById('roadmapDetailPrev').addEventListener('click',()=>showRoadmapSlide(roadmapSlideIndex-1));document.getElementById('roadmapDetailNext').addEventListener('click',()=>showRoadmapSlide(roadmapSlideIndex+1));document.getElementById('roadmapDetailTabs').addEventListener('click',e=>{const b=e.target.closest('[data-roadmap-index]');if(b)showRoadmapSlide(Number(b.dataset.roadmapIndex))});
 }
-
-function renderRoadmapTabs(){
-  const tabs=document.getElementById('roadmapDetailTabs');if(!tabs)return;
-  tabs.innerHTML=roadmapSlides.map((s,i)=>`<button type="button" class="roadmap-detail-tab ${i===roadmapSlideIndex?'active':''}" data-roadmap-index="${i}">${s.step} · ${s.tab}</button>`).join('');
-}
-function showRoadmapSlide(index){
-  roadmapSlideIndex=(index+roadmapSlides.length)%roadmapSlides.length;const s=roadmapSlides[roadmapSlideIndex];
-  document.getElementById('roadmapDetailTitle').textContent=s.title;document.getElementById('roadmapDetailDesc').textContent=s.desc;
-  const img=document.getElementById('roadmapDetailImage');img.src=s.src;img.alt=s.title;
-  document.getElementById('roadmapDetailCaption').textContent=`${s.step}. ${s.tab}`;document.getElementById('roadmapDetailCaptionSub').textContent=s.desc;document.getElementById('roadmapDetailPage').textContent=`${roadmapSlideIndex+1} / ${roadmapSlides.length}`;renderRoadmapTabs();
-}
+function renderRoadmapTabs(){const tabs=document.getElementById('roadmapDetailTabs');if(tabs)tabs.innerHTML=roadmapSlides.map((s,i)=>`<button type="button" class="roadmap-detail-tab ${i===roadmapSlideIndex?'active':''}" data-roadmap-index="${i}">${s.step} · ${s.tab}</button>`).join('')}
+function showRoadmapSlide(index){roadmapSlideIndex=(index+roadmapSlides.length)%roadmapSlides.length;const s=roadmapSlides[roadmapSlideIndex];document.getElementById('roadmapDetailTitle').textContent=s.title;document.getElementById('roadmapDetailDesc').textContent=s.desc;const img=document.getElementById('roadmapDetailImage');img.src=s.src;img.alt=s.title;document.getElementById('roadmapDetailCaption').textContent=`${s.step}. ${s.tab}`;document.getElementById('roadmapDetailCaptionSub').textContent=s.desc;document.getElementById('roadmapDetailPage').textContent=`${roadmapSlideIndex+1} / ${roadmapSlides.length}`;renderRoadmapTabs()}
 function openRoadmapDetail(index=0){ensureRoadmapModal();showRoadmapSlide(index);document.getElementById('roadmapDetailOverlay').classList.add('open');document.body.classList.add('roadmap-detail-open')}
 function closeRoadmapDetail(){document.getElementById('roadmapDetailOverlay')?.classList.remove('open');document.body.classList.remove('roadmap-detail-open')}
+
+function ensureRoleModal(){
+  if(document.getElementById('tfRoleOverlay'))return;
+  const overlay=document.createElement('div');overlay.id='tfRoleOverlay';overlay.className='tf-role-overlay';overlay.setAttribute('role','dialog');overlay.setAttribute('aria-modal','true');overlay.innerHTML=`<div class="tf-role-dialog"><header class="tf-role-head"><div><small>WEEK 1 · ROLE SETUP</small><h3>TF를 굴리는 다섯 가지 역할</h3><p>직책이 아니라 회의와 실행을 매끄럽게 만드는 운영 역할입니다. 각 역할에는 최대 2명까지 지정할 수 있습니다.</p><div class="tf-role-live"><i></i><span>선택 결과 실시간 공유</span></div></div><button type="button" class="tf-role-close" id="tfRoleClose" aria-label="닫기">×</button></header><div class="tf-role-board" id="tfRoleBoard"></div></div>`;document.body.appendChild(overlay);overlay.addEventListener('click',e=>{if(e.target===overlay)closeRoleBoard()});document.getElementById('tfRoleClose').addEventListener('click',closeRoleBoard);document.getElementById('tfRoleBoard').addEventListener('click',handleRoleBoardClick);
+}
+
+function rolePeople(key){return roleAssignments.filter(a=>a.role_key===key)}
+function renderRoleBoard(){
+  const board=document.getElementById('tfRoleBoard');if(!board)return;
+  board.innerHTML=tfRoles.map(role=>{const assigned=rolePeople(role.key);const assignedNames=new Set(assigned.map(a=>a.assignee_name));const available=tfMembers.filter(n=>!assignedNames.has(n));const full=assigned.length>=2;return `<article class="tf-role-card"><div class="tf-role-index"><b>${role.no}</b><span>${role.tag}</span></div><div class="tf-role-copy"><h4>${role.title}</h4><p>${role.desc}</p></div><div class="tf-role-assign"><div class="tf-role-assignees">${assigned.length?assigned.map(a=>`<span class="tf-role-person">${a.assignee_name}<button type="button" data-remove-role="${role.key}" data-remove-name="${a.assignee_name}" aria-label="${a.assignee_name} 지정 해제">×</button></span>`).join(''):'<span class="tf-role-empty">아직 담당자가 없습니다.</span>'}</div><div class="tf-role-picker"><select data-role-select="${role.key}" ${full?'disabled':''}><option value="">이름 선택</option>${available.map(name=>`<option value="${name}">${name}</option>`).join('')}</select><button type="button" class="tf-role-add" data-add-role="${role.key}" ${full?'disabled':''}>지정</button></div><span class="tf-role-limit">${assigned.length} / 2명 지정</span></div></article>`}).join('');
+}
+async function loadRoleAssignments(){const {data,error}=await supabase.from('sck_tf_role_assignments').select('*').eq('workshop_id',WORKSHOP).order('created_at',{ascending:true});if(error){console.error(error);return}roleAssignments=data||[];renderRoleBoard()}
+async function handleRoleBoardClick(e){
+  const add=e.target.closest('[data-add-role]');
+  if(add){const key=add.dataset.addRole;const select=document.querySelector(`[data-role-select="${key}"]`);const name=select?.value;if(!name)return;if(rolePeople(key).length>=2)return;add.disabled=true;const {error}=await supabase.from('sck_tf_role_assignments').insert({workshop_id:WORKSHOP,role_key:key,assignee_name:name});if(error){alert('역할을 지정하지 못했습니다. 잠시 후 다시 시도해주세요.');console.error(error)}await loadRoleAssignments();return}
+  const remove=e.target.closest('[data-remove-role]');
+  if(remove){const {error}=await supabase.from('sck_tf_role_assignments').delete().eq('workshop_id',WORKSHOP).eq('role_key',remove.dataset.removeRole).eq('assignee_name',remove.dataset.removeName);if(error){alert('지정을 해제하지 못했습니다.');console.error(error)}await loadRoleAssignments()}
+}
+async function openRoleBoard(){ensureRoleModal();await loadRoleAssignments();document.getElementById('tfRoleOverlay').classList.add('open');document.body.classList.add('tf-role-open')}
+function closeRoleBoard(){document.getElementById('tfRoleOverlay')?.classList.remove('open');document.body.classList.remove('tf-role-open')}
 
 function decorateRoadmapStageList(){
   const list=document.getElementById('stageList');if(!list)return;
   [...list.querySelectorAll('li')].forEach(li=>{
-    if(!li.textContent.replace(/\s+/g,'').includes('사업목적·추진방향공유'))return;
-    if(li.classList.contains('roadmap-detail-item'))return;
-    li.classList.add('roadmap-detail-item');li.innerHTML=`<div class="roadmap-detail-card" data-roadmap-open="0" role="button" tabindex="0"><span>사업 목적·추진 방향 공유</span><div class="roadmap-detail-chips"><button type="button" class="roadmap-detail-chip" data-roadmap-open="0">사업 목적</button><button type="button" class="roadmap-detail-chip" data-roadmap-open="1">추진 방향</button></div><small>상세 페이지 열기 ↗</small></div>`;
+    const text=li.textContent.replace(/\s+/g,'');
+    if(text.includes('사업목적·추진방향공유')&&!li.classList.contains('roadmap-detail-item')){li.classList.add('roadmap-detail-item');li.innerHTML=`<div class="roadmap-detail-card" data-roadmap-open="0" role="button" tabindex="0"><span>사업 목적·추진 방향 공유</span><div class="roadmap-detail-chips"><button type="button" class="roadmap-detail-chip" data-roadmap-open="0">사업 목적</button><button type="button" class="roadmap-detail-chip" data-roadmap-open="1">추진 방향</button></div><small>상세 페이지 열기 ↗</small></div>`;return}
+    if(text==='역할분담'&&!li.classList.contains('tf-role-item')){li.classList.add('tf-role-item');li.innerHTML=`<button type="button" class="tf-role-trigger" data-role-board-open><span>역할 분담</span><small>5개 운영 역할 지정하기 ↗</small></button>`}
   });
 }
 
-installRoadmapDetailStyles();ensureRoadmapModal();decorateRoadmapStageList();
-const toneLink=document.querySelector('link[data-sck-tone]')||document.createElement('link');
-if(!toneLink.dataset.sckTone){toneLink.rel='stylesheet';toneLink.href='tone.css';toneLink.dataset.sckTone='1';document.head.appendChild(toneLink)}
+installRoadmapDetailStyles();ensureRoadmapModal();ensureRoleModal();decorateRoadmapStageList();
+const toneLink=document.querySelector('link[data-sck-tone]')||document.createElement('link');if(!toneLink.dataset.sckTone){toneLink.rel='stylesheet';toneLink.href='tone.css';toneLink.dataset.sckTone='1';document.head.appendChild(toneLink)}
 const stageList=document.getElementById('stageList');
-stageList?.addEventListener('click',e=>{const target=e.target.closest('[data-roadmap-open]');if(!target)return;e.preventDefault();e.stopPropagation();openRoadmapDetail(Number(target.dataset.roadmapOpen)||0)});
+stageList?.addEventListener('click',e=>{const role=e.target.closest('[data-role-board-open]');if(role){e.preventDefault();e.stopPropagation();openRoleBoard();return}const target=e.target.closest('[data-roadmap-open]');if(!target)return;e.preventDefault();e.stopPropagation();openRoadmapDetail(Number(target.dataset.roadmapOpen)||0)});
 stageList?.addEventListener('keydown',e=>{if(e.key!=='Enter'&&e.key!==' ')return;const target=e.target.closest('.roadmap-detail-card[data-roadmap-open]');if(!target)return;e.preventDefault();openRoadmapDetail(Number(target.dataset.roadmapOpen)||0)});
 if(stageList)new MutationObserver(decorateRoadmapStageList).observe(stageList,{childList:true,subtree:true});
-document.addEventListener('keydown',e=>{const open=document.getElementById('roadmapDetailOverlay')?.classList.contains('open');if(!open)return;if(e.key==='Escape')closeRoadmapDetail();else if(e.key==='ArrowRight')showRoadmapSlide(roadmapSlideIndex+1);else if(e.key==='ArrowLeft')showRoadmapSlide(roadmapSlideIndex-1)});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElementById('tfRoleOverlay')?.classList.contains('open')){closeRoleBoard();return}const open=document.getElementById('roadmapDetailOverlay')?.classList.contains('open');if(!open)return;if(e.key==='Escape')closeRoadmapDetail();else if(e.key==='ArrowRight')showRoadmapSlide(roadmapSlideIndex+1);else if(e.key==='ArrowLeft')showRoadmapSlide(roadmapSlideIndex-1)});
+loadRoleAssignments();
+supabase.channel('sck-tf-role-assignments-live').on('postgres_changes',{event:'*',schema:'public',table:'sck_tf_role_assignments'},()=>loadRoleAssignments()).subscribe();
