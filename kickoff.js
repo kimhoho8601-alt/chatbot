@@ -129,7 +129,7 @@ function mountKickoffWhyAction(){
   const style=document.createElement('style');
   style.id='kickoffWhyActionStyle';
   style.textContent=`
-    .kickoff-why-action{margin:26px 0 34px;display:flex;align-items:center;justify-content:space-between;gap:24px;padding:18px 20px 18px 24px;border:1px solid #ececef;border-radius:22px;background:#fff;box-shadow:0 12px 34px rgba(0,0,0,.045)}
+    .kickoff-why-action{margin:26px 0 34px;display:flex;align-items:center;justify-content:space-between;gap:24px;padding:18px 20px 18px 24px;border:1px solid #ececef;border-radius:22px;background:#fff;box-shadow:0 12px 34px rgba(0,0,0,.045);opacity:1!important;transform:none!important;visibility:visible!important}
     .kickoff-why-copy{min-width:0}.kickoff-why-copy small{display:block;margin-bottom:5px;color:#9a9ca1;font-size:10px;font-weight:900;letter-spacing:.12em}.kickoff-why-copy strong{display:block;font-size:15px;line-height:1.45;word-break:keep-all;overflow-wrap:normal}
     .kickoff-why-link{flex:0 0 auto;display:inline-flex;align-items:center;gap:14px;min-height:54px;padding:0 20px;border-radius:999px;background:var(--red);color:#fff;text-decoration:none;box-shadow:0 10px 24px rgba(229,27,35,.18);transition:transform .18s ease,box-shadow .18s ease,background .18s ease}
     .kickoff-why-link:hover{transform:translateY(-1px);background:#cf1820;box-shadow:0 14px 30px rgba(229,27,35,.23)}.kickoff-why-link:focus-visible{outline:3px solid rgba(229,27,35,.22);outline-offset:3px}.kickoff-why-link span{font:800 10px/1 Manrope,sans-serif;letter-spacing:.1em;opacity:.72;white-space:nowrap}.kickoff-why-link b{font-size:14px;white-space:nowrap}
@@ -140,7 +140,7 @@ function mountKickoffWhyAction(){
 
   const action=document.createElement('div');
   action.id='kickoffWhyAction';
-  action.className='kickoff-why-action reveal';
+  action.className='kickoff-why-action';
   action.innerHTML=`
     <div class="kickoff-why-copy"><small>AGENDA CHECKED</small><strong>아젠다를 확인했다면 첫 순서부터 시작합니다.</strong></div>
     <a class="kickoff-why-link" href="#why"><span>01 / WHY</span><b>첫 순서부터 시작 →</b></a>
