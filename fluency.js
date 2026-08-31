@@ -49,7 +49,15 @@ function renderQuestion(){
   $('#quizIndex').textContent=`${String(current+1).padStart(2,'0')} / ${questions.length}`;
   $('#questionText').textContent=item.q;
   $('#scaleOptions').innerHTML=scale.map(([label,value])=>`<button type="button" class="${answers[current]===value?'active':''}" data-value="${value}" role="radio" aria-checked="${answers[current]===value}">${label}<small>${value}</small></button>`).join('');
-  $('#scaleOptions').querySelectorAll('button').forEach(btn=>btn.onclick=()=>{answers[current]=Number(btn.dataset.value);renderQuestion()});
+  $('#scaleOptions').querySelectorAll('button').forEach(btn=>btn.onclick=()=>{
+    answers[current]=Number(btn.dataset.value);
+    $('#scaleOptions').querySelectorAll('button').forEach(option=>{
+      const selected=option===btn;
+      option.classList.toggle('active',selected);
+      option.setAttribute('aria-checked',selected?'true':'false');
+    });
+    $('#nextBtn').disabled=false;
+  });
   $('#nextBtn').disabled=answers[current]==null;
   $('#nextBtn').textContent=current===questions.length-1?'결과 보기':'다음';
   $('#prevBtn').textContent=current===0?'이름 선택':'이전';
@@ -65,12 +73,26 @@ function scoreAnswers(){
   return scores;
 }
 async function submitResult(){
+  if(answers.some(v=>v==null)){toast('아직 선택하지 않은 문항이 있습니다.');return}
   const s=scoreAnswers();
-  $('#nextBtn').disabled=true;$('#nextBtn').textContent='저장 중...';
   const payload={workshop_id:WORKSHOP,participant_name:participant,delegation:s.delegation,description:s.description,discernment:s.discernment,diligence:s.diligence,total_score:s.total,answers,updated_at:new Date().toISOString()};
+
+  // 결과 확인은 네트워크 저장보다 우선합니다.
+  renderPersonal(payload);
+  $('#quizCard').classList.add('hidden');
+  $('#personalResult').classList.remove('hidden');
+  $('#personalResult').scrollIntoView({behavior:'smooth'});
+  $('#nextBtn').disabled=false;
+  $('#nextBtn').textContent='결과 보기';
+
   const {error}=await supabase.from('sck_tf_ai_fluency_results').upsert(payload,{onConflict:'workshop_id,participant_name'});
-  if(error){toast('결과 저장에 실패했습니다. 잠시 후 다시 시도해주세요.');console.error(error);$('#nextBtn').disabled=false;$('#nextBtn').textContent='결과 보기';return}
-  renderPersonal(payload);$('#quizCard').classList.add('hidden');$('#personalResult').classList.remove('hidden');$('#personalResult').scrollIntoView({behavior:'smooth'});toast('결과가 TF 보드에 공유되었습니다.');await loadTeam();
+  if(error){
+    toast('개인 결과는 확인할 수 있지만 TF 공유 저장에 실패했습니다.');
+    console.error(error);
+    return;
+  }
+  toast('결과가 TF 보드에 공유되었습니다.');
+  await loadTeam();
 }
 function renderPersonal(r){
   $('#resultName').textContent=r.participant_name;$('#totalScore').textContent=r.total_score;
