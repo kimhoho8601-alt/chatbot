@@ -54,7 +54,6 @@ participantSelect.addEventListener('change',()=>{
   localStorage.setItem('sck-fluency-name',participantSelect.value);
 });
 
-// 설문은 선택 즉시 다음 문항으로 진행합니다. '다음' 버튼은 사용하지 않습니다.
 const nextBtn=$('#nextBtn');
 if(nextBtn)nextBtn.style.display='none';
 const quizActions=$('#quizCard .quiz-actions');
@@ -69,26 +68,68 @@ $('#beginBtn').onclick=()=>{
   $('#experienceCard').classList.remove('hidden');
   renderExperience();updateProgress('활용 경험');
 };
+
 $('#experienceNext').onclick=()=>{
   if(Object.keys(experienceAnswers).length!==experienceQuestions.length)return;
+  openTransitionModal();
+};
+
+$('#transitionStart')?.addEventListener('click',()=>{
+  closeTransitionModal();
   $('#experienceCard').classList.add('hidden');
   $('#quizCard').classList.remove('hidden');
+  current=0;
   renderQuestion();
-};
+  setTimeout(()=>$('#quizCard').scrollIntoView({behavior:'smooth',block:'center'}),80);
+});
+
+$('#transitionBack')?.addEventListener('click',()=>{
+  closeTransitionModal();
+  $('#experienceCard').scrollIntoView({behavior:'smooth',block:'center'});
+});
+
 $('#prevBtn').onclick=()=>{
   if(advancing||submitting)return;
   if(current>0){current--;renderQuestion()}
   else{$('#quizCard').classList.add('hidden');$('#experienceCard').classList.remove('hidden');updateProgress('활용 경험')}
 };
-$('#retakeBtn').onclick=()=>{
+
+$('#retakeBtn').onclick=()=>resetAssessmentUI(true);
+$('#resetDataBtn')?.addEventListener('click',resetTeamData);
+
+function openTransitionModal(){
+  const modal=$('#transitionModal');
+  if(!modal)return;
+  modal.classList.add('open');
+  modal.setAttribute('aria-hidden','false');
+  document.body.style.overflow='hidden';
+  setTimeout(()=>$('#transitionStart')?.focus(),80);
+}
+
+function closeTransitionModal(){
+  const modal=$('#transitionModal');
+  if(!modal)return;
+  modal.classList.remove('open');
+  modal.setAttribute('aria-hidden','true');
+  document.body.style.overflow='';
+}
+
+function resetAssessmentUI(scroll=true){
+  closeTransitionModal();
+  participant='';
+  experienceAnswers={};
+  answers=Array(questions.length).fill(null);
+  current=0;advancing=false;submitting=false;
+  participantSelect.value='';
+  localStorage.removeItem('sck-fluency-name');
+  $('#beginBtn').disabled=true;
   $('#personalResult').classList.add('hidden');
-  $('#namePanel').classList.remove('hidden');
   $('#quizCard').classList.add('hidden');
   $('#experienceCard').classList.add('hidden');
-  experienceAnswers={};answers=Array(questions.length).fill(null);current=0;advancing=false;submitting=false;
-  updateProgress('준비');$('#assessment').scrollIntoView({behavior:'smooth'});
-};
-$('#resetDataBtn')?.addEventListener('click',resetTeamData);
+  $('#namePanel').classList.remove('hidden');
+  updateProgress('준비');
+  if(scroll)setTimeout(()=>$('#assessment').scrollIntoView({behavior:'smooth',block:'start'}),80);
+}
 
 function renderExperience(){
   $('#experienceGrid').innerHTML=experienceQuestions.map((item,i)=>`<div class="experience-item"><label>${i+1}. ${item.label}</label><select data-key="${item.key}"><option value="">선택해주세요</option>${item.options.map(([label,value])=>`<option value="${value}" ${String(experienceAnswers[item.key])===String(value)?'selected':''}>${label}</option>`).join('')}</select><span class="experience-help">${item.help}</span></div>`).join('');
@@ -120,8 +161,6 @@ function selectAnswer(btn){
     option.classList.toggle('active',option===btn);
     option.disabled=true;
   });
-
-  // 선택한 느낌은 짧게 남기되 흐름을 끊지 않습니다.
   setTimeout(()=>{
     if(current<questions.length-1){
       current++;
@@ -202,7 +241,7 @@ function renderTeam(){
     $('#teamTotalAvg').textContent='0';$('#teamUtilAvg').textContent='0';
     drawRadar($('#teamRadar'),{delegation:0,description:0,discernment:0,diligence:0},true);
     $('#teamBars').innerHTML='';
-    $('#peopleGrid').innerHTML='<div class="empty-state">아직 제출된 결과가 없습니다.</div>';
+    $('#peopleGrid').innerHTML='<div class="empty-state">아직 제출된 결과가 없습니다. 위에서 이름을 선택하고 새 테스트를 시작할 수 있습니다.</div>';
     return;
   }
   const avg={};
@@ -220,9 +259,16 @@ function renderTeam(){
 async function resetTeamData(){
   if(!confirm('TF 결과 데이터를 모두 초기화할까요?'))return;
   if(!confirm('정말 삭제할까요? 이 작업은 되돌릴 수 없습니다.'))return;
+  const btn=$('#resetDataBtn');
+  if(btn){btn.disabled=true;btn.textContent='초기화 중...'}
   const {error}=await supabase.from('sck_tf_ai_fluency_results').delete().eq('workshop_id',WORKSHOP);
+  if(btn){btn.disabled=false;btn.textContent='데이터 초기화'}
   if(error){toast('데이터 초기화에 실패했습니다.');return}
-  results=[];renderTeam();$('#personalResult').classList.add('hidden');toast('TF 결과 데이터가 초기화되었습니다.');
+  results=[];
+  renderTeam();
+  resetAssessmentUI(false);
+  toast('데이터를 초기화했습니다. 새 테스트를 시작할 수 있습니다.');
+  setTimeout(()=>$('#assessment').scrollIntoView({behavior:'smooth',block:'start'}),180);
 }
 
 function drawRadar(svg,vals,isTeam){
