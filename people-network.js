@@ -1,5 +1,6 @@
 const isProjectRoot=location.pathname.endsWith('/chatbot/')||location.pathname.endsWith('/chatbot');
-if(isProjectRoot)location.replace('./fluency.html');
+const explicitHome=new URLSearchParams(location.search).get('home')==='1';
+if(isProjectRoot&&!explicitHome)location.replace('./fluency.html');
 
 const peopleSection=document.getElementById('people');
 
