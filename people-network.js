@@ -1,3 +1,6 @@
+const isProjectRoot=location.pathname.endsWith('/chatbot/')||location.pathname.endsWith('/chatbot');
+if(isProjectRoot)location.replace('./fluency.html');
+
 const peopleSection=document.getElementById('people');
 
 if(peopleSection){
