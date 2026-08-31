@@ -43,6 +43,7 @@ let answers=Array(questions.length).fill(null);
 let experienceAnswers={};
 let current=0,participant='',results=[];
 let advancing=false,submitting=false;
+let rankingMode='total';
 const $=s=>document.querySelector(s);
 const participantSelect=$('#participantSelect');
 
@@ -227,6 +228,89 @@ function renderPersonal(r){
   $('#talkPrompt').textContent=`나는 ${top.label}을 실제 업무에서 어떻게 하고 있나요? 그리고 활용도 ${r.utilization_score}점을 만든 경험 중 동료와 공유하고 싶은 것은 무엇인가요?`;
 }
 
+function mountLivePodium(){
+  const teamSummary=$('.team-summary');
+  if(!teamSummary||$('#livePodium'))return;
+
+  const style=document.createElement('style');
+  style.id='livePodiumStyles';
+  style.textContent=`
+    .live-podium{position:relative;margin:0 0 22px;padding:30px 32px 0;border-radius:28px;overflow:hidden;background:#1d1f22;color:#fff;box-shadow:0 22px 60px rgba(0,0,0,.12)}
+    .live-podium:before{content:'';position:absolute;inset:0;pointer-events:none;background:linear-gradient(120deg,rgba(255,255,255,.04),transparent 38%),repeating-linear-gradient(90deg,rgba(255,255,255,.025) 0,rgba(255,255,255,.025) 1px,transparent 1px,transparent 80px)}
+    .podium-head{position:relative;z-index:1;display:flex;align-items:flex-start;justify-content:space-between;gap:24px}
+    .podium-titleline{display:flex;align-items:center;gap:10px;margin-bottom:8px}.podium-live{display:inline-flex;align-items:center;gap:7px;padding:6px 9px;border:1px solid rgba(255,255,255,.14);border-radius:999px;font:800 10px/1 Manrope,sans-serif;letter-spacing:.1em;color:#fff}.podium-live i{width:7px;height:7px;border-radius:50%;background:#e51b23;box-shadow:0 0 0 5px rgba(229,27,35,.16)}
+    .podium-head h3{margin:0;font:800 clamp(27px,3vw,40px)/1.08 Manrope,'Noto Sans KR',sans-serif;letter-spacing:-.045em}.podium-head p{margin:9px 0 0;color:#a9acb1;font-size:13px;line-height:1.6}
+    .podium-tabs{display:flex;padding:4px;border:1px solid rgba(255,255,255,.12);border-radius:999px;background:rgba(255,255,255,.05)}.podium-tabs button{border:0;border-radius:999px;padding:10px 15px;background:transparent;color:#aaaeb3;font:800 12px/1 'DM Sans','Noto Sans KR',sans-serif;cursor:pointer;white-space:nowrap}.podium-tabs button.active{background:#fff;color:#151619}
+    .podium-stage{position:relative;z-index:1;display:grid;grid-template-columns:1fr 1.08fr 1fr;align-items:end;gap:12px;width:min(760px,100%);height:310px;margin:22px auto 0;padding:0 10px}
+    .podium-slot{display:flex;flex-direction:column;align-items:stretch;justify-content:flex-end;height:100%;animation:podium-rise .42s cubic-bezier(.22,.8,.32,1) both}.podium-slot.rank-1{animation-delay:.04s}.podium-slot.rank-3{animation-delay:.08s}
+    .podium-person{display:flex;flex-direction:column;align-items:center;gap:7px;margin-bottom:11px;text-align:center}.podium-rank-label{font:800 9px/1 Manrope,sans-serif;letter-spacing:.14em;color:#8f9398}.podium-name{max-width:100%;padding:9px 15px;border-radius:999px;background:#fff;color:#17181a;font-size:clamp(15px,2vw,20px);line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;box-shadow:0 8px 24px rgba(0,0,0,.18)}.podium-slot.rank-1 .podium-name{background:#e51b23;color:#fff;box-shadow:0 9px 30px rgba(229,27,35,.28)}.podium-slot.is-empty .podium-name{background:rgba(255,255,255,.07);color:#777b80;box-shadow:none}
+    .podium-block{position:relative;display:grid;place-items:start center;padding-top:18px;border-radius:17px 17px 0 0;overflow:hidden}.podium-block:after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.22),transparent 45%);pointer-events:none}.podium-block span{position:relative;z-index:1;font:800 54px/.9 Manrope,sans-serif;letter-spacing:-.08em}.rank-1 .podium-block{height:170px;background:#e51b23}.rank-2 .podium-block{height:130px;background:#f0f0ee;color:#25272a}.rank-3 .podium-block{height:104px;background:#d2d3d1;color:#25272a}.rank-1 .podium-block span{color:#fff}.rank-2 .podium-block span,.rank-3 .podium-block span{color:#777a7e}
+    .podium-foot{position:relative;z-index:1;display:flex;justify-content:space-between;gap:20px;padding:15px 0 18px;border-top:1px solid rgba(255,255,255,.08);color:#83878d;font-size:11px;line-height:1.5}.podium-foot strong{color:#c5c7ca;font-weight:700}
+    @keyframes podium-rise{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
+    @media(max-width:720px){.live-podium{padding:24px 18px 0}.podium-head{display:grid}.podium-tabs{width:100%}.podium-tabs button{flex:1}.podium-stage{height:260px;gap:7px;padding:0}.rank-1 .podium-block{height:142px}.rank-2 .podium-block{height:110px}.rank-3 .podium-block{height:88px}.podium-name{padding:8px 10px;font-size:14px}.podium-block span{font-size:43px}.podium-foot{display:block}.podium-foot span:last-child{display:block;margin-top:4px}}
+    @media(max-width:430px){.podium-stage{height:235px}.podium-rank-label{font-size:8px}.podium-name{font-size:12px;padding:7px 8px}.rank-1 .podium-block{height:126px}.rank-2 .podium-block{height:98px}.rank-3 .podium-block{height:80px}}
+    @media(prefers-reduced-motion:reduce){.podium-slot{animation:none}}
+  `;
+  document.head.appendChild(style);
+
+  const board=document.createElement('section');
+  board.id='livePodium';
+  board.className='live-podium';
+  board.innerHTML=`
+    <div class="podium-head">
+      <div>
+        <div class="podium-titleline"><span class="podium-live"><i></i>LIVE</span></div>
+        <h3>실시간 TOP 3</h3>
+        <p id="podiumCaption">AI 협업 역량 기준 · 현재 제출 결과가 바로 반영됩니다.</p>
+      </div>
+      <div class="podium-tabs" role="tablist" aria-label="TOP3 기준 선택">
+        <button type="button" class="active" data-ranking-mode="total" aria-pressed="true">협업 역량</button>
+        <button type="button" data-ranking-mode="utilization" aria-pressed="false">업무 활용도</button>
+      </div>
+    </div>
+    <div class="podium-stage" id="podiumStage" aria-live="polite"></div>
+    <div class="podium-foot"><span><strong>이름만 표시</strong> · 점수는 수상대에 노출하지 않습니다.</span><span>순위는 비교보다 경험 공유를 위한 참고용입니다.</span></div>
+  `;
+  teamSummary.parentNode.insertBefore(board,teamSummary);
+
+  board.querySelectorAll('[data-ranking-mode]').forEach(btn=>btn.addEventListener('click',()=>{
+    rankingMode=btn.dataset.rankingMode;
+    board.querySelectorAll('[data-ranking-mode]').forEach(item=>{
+      const active=item===btn;
+      item.classList.toggle('active',active);
+      item.setAttribute('aria-pressed',active?'true':'false');
+    });
+    $('#podiumCaption').textContent=rankingMode==='total'?'AI 협업 역량 기준 · 현재 제출 결과가 바로 반영됩니다.':'AI 업무 활용도 기준 · 현재 제출 결과가 바로 반영됩니다.';
+    renderPodium();
+  }));
+  renderPodium();
+}
+
+function renderPodium(){
+  const stage=$('#podiumStage');
+  if(!stage)return;
+  const metric=rankingMode==='total'?'total_score':'utilization_score';
+  const secondary=rankingMode==='total'?'utilization_score':'total_score';
+  const ranked=[...results]
+    .filter(r=>r[metric]!=null)
+    .sort((a,b)=>{
+      const primary=Number(b[metric]||0)-Number(a[metric]||0);
+      if(primary)return primary;
+      const second=Number(b[secondary]||0)-Number(a[secondary]||0);
+      if(second)return second;
+      return String(a.participant_name).localeCompare(String(b.participant_name),'ko');
+    })
+    .slice(0,3);
+
+  const slot=(rank,index)=>{
+    const person=ranked[index];
+    const name=person?escapeHtml(person.participant_name):'대기 중';
+    return `<div class="podium-slot rank-${rank} ${person?'':'is-empty'}"><div class="podium-person"><span class="podium-rank-label">TOP ${rank}</span><strong class="podium-name">${name}</strong></div><div class="podium-block" aria-hidden="true"><span>${rank}</span></div></div>`;
+  };
+
+  stage.innerHTML=slot(2,1)+slot(1,0)+slot(3,2);
+}
+
 async function loadTeam(){
   const {data,error}=await supabase.from('sck_tf_ai_fluency_results').select('*').eq('workshop_id',WORKSHOP).order('updated_at',{ascending:false});
   if(error){$('#liveLabel').textContent='팀 결과 연결 확인 필요';return}
@@ -237,6 +321,7 @@ async function loadTeam(){
 
 function renderTeam(){
   $('#teamCount').textContent=results.length;
+  renderPodium();
   if(!results.length){
     $('#teamTotalAvg').textContent='0';$('#teamUtilAvg').textContent='0';
     drawRadar($('#teamRadar'),{delegation:0,description:0,discernment:0,diligence:0},true);
@@ -290,5 +375,6 @@ function toast(msg){
 }
 function escapeHtml(s=''){return String(s).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
 
+mountLivePodium();
 loadTeam();
 supabase.channel('sck-ai-fluency-live').on('postgres_changes',{event:'*',schema:'public',table:'sck_tf_ai_fluency_results'},()=>loadTeam()).subscribe();
