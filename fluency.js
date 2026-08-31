@@ -235,6 +235,8 @@ function mountLivePodium(){
   const style=document.createElement('style');
   style.id='livePodiumStyles';
   style.textContent=`
+    .team-section .shell{display:flex;flex-direction:column}
+    .team-section .section-head{order:1}.team-section .team-extra{order:2}.team-section .team-summary{order:3}.team-section .people-head{order:4}.team-section .people-grid{order:5}.team-section .live-podium{order:6;margin-top:42px!important;margin-bottom:0!important}
     .live-podium{position:relative;margin:0 0 22px;padding:30px 32px 0;border-radius:28px;overflow:hidden;background:#1d1f22;color:#fff;box-shadow:0 22px 60px rgba(0,0,0,.12)}
     .live-podium:before{content:'';position:absolute;inset:0;pointer-events:none;background:linear-gradient(120deg,rgba(255,255,255,.04),transparent 38%),repeating-linear-gradient(90deg,rgba(255,255,255,.025) 0,rgba(255,255,255,.025) 1px,transparent 1px,transparent 80px)}
     .podium-head{position:relative;z-index:1;display:flex;align-items:flex-start;justify-content:space-between;gap:24px}
