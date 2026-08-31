@@ -7,10 +7,10 @@ const supabase=createClient(SUPABASE_URL,SUPABASE_KEY,{realtime:{params:{eventsP
 
 const participants=['김홍섭','이영선','최현지','최예린','이호열','서종호','백예원','전현지','이예진','이슬기','김지원','김현주','김자연'];
 const dimensions={
-  delegation:{code:'D1',label:'Delegation',ko:'위임 판단',desc:'사람과 AI의 역할을 나누고, 어디까지 맡길지 판단합니다.'},
-  description:{code:'D2',label:'Description',ko:'의도 전달',desc:'목표·맥락·형식·기준을 구체적으로 설명합니다.'},
-  discernment:{code:'D3',label:'Discernment',ko:'결과 판단',desc:'AI 결과의 품질과 한계를 검토하고 더 나은 답을 구별합니다.'},
-  diligence:{code:'D4',label:'Diligence',ko:'책임 사용',desc:'보안·투명성·책임을 고려해 AI를 안전하게 활용합니다.'}
+  delegation:{code:'D1',label:'역할 나누기',desc:'무엇을 AI에 맡기고, 무엇을 사람이 직접 판단·확인할지 정합니다.'},
+  description:{code:'D2',label:'요청 설명',desc:'목적과 배경, 원하는 결과의 조건과 형식을 분명히 전달합니다.'},
+  discernment:{code:'D3',label:'결과 살피기',desc:'AI의 답을 그대로 믿지 않고 정확성과 빠진 점을 확인합니다.'},
+  diligence:{code:'D4',label:'책임 있게 사용',desc:'보안과 실제 영향을 생각하며 안전하게 AI를 활용합니다.'}
 };
 const questions=[
   {d:'delegation',q:'업무를 시작할 때, 어떤 부분은 내가 직접 판단하고 어떤 부분은 AI에 맡길지 먼저 나눠보는 편이다.'},
@@ -42,6 +42,7 @@ $('#beginBtn').onclick=()=>{participant=participantSelect.value;answers=Array(qu
 $('#prevBtn').onclick=()=>{if(current>0){current--;renderQuestion()}else{$('#quizCard').classList.add('hidden');$('#namePanel').classList.remove('hidden');updateProgress(0)}};
 $('#nextBtn').onclick=()=>{if(answers[current]==null)return;if(current<questions.length-1){current++;renderQuestion()}else submitResult();};
 $('#retakeBtn').onclick=()=>{participantSelect.value=participant;$('#personalResult').classList.add('hidden');$('#namePanel').classList.remove('hidden');$('#quizCard').classList.add('hidden');answers=Array(questions.length).fill(null);current=0;updateProgress(0);$('#assessment').scrollIntoView({behavior:'smooth'})};
+$('#resetDataBtn')?.addEventListener('click',resetTeamData);
 
 function renderQuestion(){
   const item=questions[current],d=dimensions[item.d];
@@ -77,7 +78,6 @@ async function submitResult(){
   const s=scoreAnswers();
   const payload={workshop_id:WORKSHOP,participant_name:participant,delegation:s.delegation,description:s.description,discernment:s.discernment,diligence:s.diligence,total_score:s.total,answers,updated_at:new Date().toISOString()};
 
-  // 결과 확인은 네트워크 저장보다 우선합니다.
   renderPersonal(payload);
   $('#quizCard').classList.add('hidden');
   $('#personalResult').classList.remove('hidden');
@@ -86,11 +86,7 @@ async function submitResult(){
   $('#nextBtn').textContent='결과 보기';
 
   const {error}=await supabase.from('sck_tf_ai_fluency_results').upsert(payload,{onConflict:'workshop_id,participant_name'});
-  if(error){
-    toast('개인 결과는 확인할 수 있지만 TF 공유 저장에 실패했습니다.');
-    console.error(error);
-    return;
-  }
+  if(error){toast('개인 결과는 확인할 수 있지만 TF 공유 저장에 실패했습니다.');console.error(error);return}
   toast('결과가 TF 보드에 공유되었습니다.');
   await loadTeam();
 }
@@ -98,12 +94,12 @@ function renderPersonal(r){
   $('#resultName').textContent=r.participant_name;$('#totalScore').textContent=r.total_score;
   const vals={delegation:r.delegation,description:r.description,discernment:r.discernment,diligence:r.diligence};
   drawRadar($('#radar'),vals,false);
-  $('#dimensionResults').innerHTML=Object.entries(dimensions).map(([k,d])=>`<article class="dim-card"><span>${d.code} · ${d.label}</span><strong>${vals[k]}</strong><b>${d.ko}</b><p>${d.desc}</p></article>`).join('');
+  $('#dimensionResults').innerHTML=Object.entries(dimensions).map(([k,d])=>`<article class="dim-card"><span>${d.code} · ${d.label}</span><strong>${vals[k]}</strong><p>${d.desc}</p></article>`).join('');
   const sorted=Object.entries(vals).sort((a,b)=>b[1]-a[1]);const [topKey,topVal]=sorted[0],lowKey=sorted[sorted.length-1][0];const top=dimensions[topKey],low=dimensions[lowKey];
-  $('#profileKicker').textContent=`STRONGEST · ${top.code} ${top.label}`;
-  $('#profileTitle').textContent=`${top.ko}에서 가장 자연스러운 강점이 보여요.`;
+  $('#profileKicker').textContent=`나의 강점 · ${top.code} ${top.label}`;
+  $('#profileTitle').textContent=`${top.label}이 가장 자연스러운 강점으로 보여요.`;
   $('#profileDesc').textContent=`${top.label} ${topVal}점으로 네 영역 중 가장 높습니다. 이 결과는 능력의 우열이 아니라 현재 자주 사용하는 AI 협업 습관을 보여줍니다. 상대적으로 낮은 ${low.label}은 TF 동료의 방식에서 새로운 습관을 얻어볼 수 있는 영역입니다.`;
-  $('#talkPrompt').textContent=`나는 ${top.ko}을 실제 업무에서 어떻게 하고 있나요? 그리고 ${low.ko}을 잘하는 동료에게 무엇을 배우고 싶나요?`;
+  $('#talkPrompt').textContent=`나는 ${top.label}을 실제 업무에서 어떻게 하고 있나요? 그리고 ${low.label}을 잘하는 동료에게 무엇을 배우고 싶나요?`;
 }
 
 async function loadTeam(){
@@ -116,8 +112,20 @@ function renderTeam(){
   if(!results.length){drawRadar($('#teamRadar'),{delegation:0,description:0,discernment:0,diligence:0},true);$('#teamBars').innerHTML='';$('#peopleGrid').innerHTML='<div class="empty-state">아직 제출된 결과가 없습니다. 첫 번째 프로필을 남겨보세요.</div>';return}
   const avg={};Object.keys(dimensions).forEach(k=>avg[k]=Math.round(results.reduce((sum,r)=>sum+Number(r[k]||0),0)/results.length));
   drawRadar($('#teamRadar'),avg,true);
-  $('#teamBars').innerHTML=Object.entries(dimensions).map(([k,d])=>`<div><div class="team-bar-head"><b>${d.code} · ${d.label} <small> ${d.ko}</small></b><span>${avg[k]}</span></div><div class="bar-track"><i style="width:${avg[k]}%"></i></div></div>`).join('');
+  $('#teamBars').innerHTML=Object.entries(dimensions).map(([k,d])=>`<div class="team-bar-item"><div class="team-bar-head"><b>${d.code} · ${d.label}</b><span>${avg[k]}</span></div><div class="bar-track"><i style="width:${avg[k]}%"></i></div><p class="team-bar-desc">${d.desc}</p></div>`).join('');
   $('#peopleGrid').innerHTML=results.map(r=>`<article class="person-card"><div class="person-top"><div class="person-name"><span class="avatar">${r.participant_name.slice(-2)}</span><span>${escapeHtml(r.participant_name)}</span></div><span class="person-total">${r.total_score}</span></div><div class="mini-bars">${Object.entries(dimensions).map(([k,d])=>`<div><i style="--v:${r[k]}%"></i>${d.code}<br>${r[k]}</div>`).join('')}</div></article>`).join('');
+}
+async function resetTeamData(){
+  const first=confirm('TF 결과 데이터를 모두 초기화할까요?\n\n현재 저장된 구성원 결과가 전부 삭제됩니다.');
+  if(!first)return;
+  const second=confirm('정말 삭제할까요? 이 작업은 되돌릴 수 없습니다.');
+  if(!second)return;
+  const btn=$('#resetDataBtn');
+  if(btn){btn.disabled=true;btn.textContent='초기화 중...'}
+  const {error}=await supabase.from('sck_tf_ai_fluency_results').delete().eq('workshop_id',WORKSHOP);
+  if(btn){btn.disabled=false;btn.textContent='데이터 초기화'}
+  if(error){toast('데이터 초기화에 실패했습니다.');console.error(error);return}
+  results=[];renderTeam();$('#personalResult').classList.add('hidden');toast('TF 결과 데이터가 초기화되었습니다.');
 }
 function drawRadar(svg,vals,isTeam){
   const cx=210,cy=210,maxR=142,keys=['delegation','description','discernment','diligence'],angles=[-Math.PI/2,0,Math.PI/2,Math.PI];
@@ -127,7 +135,7 @@ function drawRadar(svg,vals,isTeam){
   angles.forEach(a=>{const [x,y]=point(a,maxR);html+=`<line class="radar-axis" x1="${cx}" y1="${cy}" x2="${x}" y2="${y}"/>`});
   const shape=angles.map((a,i)=>point(a,maxR*(Number(vals[keys[i]])||0)/100).join(',')).join(' ');html+=`<polygon class="radar-shape" points="${shape}"/>`;
   angles.forEach((a,i)=>{const [x,y]=point(a,maxR+35);const d=dimensions[keys[i]];html+=`<text class="radar-label" x="${x}" y="${y}" dominant-baseline="middle" text-anchor="middle">${d.code} ${d.label}</text>`});
-  if(isTeam)html+=`<text x="${cx}" y="${cy}" text-anchor="middle" dominant-baseline="middle" style="font:800 14px Manrope,sans-serif;fill:#555">TF AVG</text>`;
+  if(isTeam)html+=`<text x="${cx}" y="${cy}" text-anchor="middle" dominant-baseline="middle" style="font:800 14px 'DM Sans','Noto Sans KR',sans-serif;fill:#555">TF 평균</text>`;
   svg.innerHTML=html;
 }
 function toast(msg){const el=$('#toast');el.textContent=msg;el.classList.add('show');clearTimeout(window.__toast);window.__toast=setTimeout(()=>el.classList.remove('show'),2300)}
