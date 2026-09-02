@@ -30,9 +30,10 @@ function installEditSessionUI(){
     .minutes-item.dragging{opacity:.35;transform:scale(.985)}.minutes-item.drag-over-before{box-shadow:0 -3px 0 #ed1c24}.minutes-item.drag-over-after{box-shadow:0 3px 0 #ed1c24}
     .role-card{position:relative}.role-drag{display:none;position:absolute;right:10px;top:9px;width:28px;height:28px;border:1px solid rgba(255,255,255,.12);border-radius:8px;background:rgba(255,255,255,.06);color:#93969c;cursor:grab;font-size:13px}body.editing .role-drag{display:grid;place-items:center}.role-card.dragging{opacity:.35}.role-card.drag-over-before{box-shadow:-4px 0 0 #ed1c24}.role-card.drag-over-after{box-shadow:4px 0 0 #ed1c24}
     body.editing .role-card{padding-top:42px;transition:opacity .15s ease,transform .15s ease,box-shadow .15s ease}.role-text[contenteditable="true"]{outline:1px dashed rgba(255,255,255,.28);outline-offset:3px;border-radius:4px}.role-text[contenteditable="true"]:focus{outline:2px solid rgba(255,107,112,.7)}
+    .role-name-display{margin:10px 0 0;color:#c3c5c9;font-size:12px;line-height:1.55;word-break:keep-all}.role-name-empty{color:#777b82;font-style:normal}.role-name-input{display:none;width:100%;height:40px;margin-top:13px;padding:0 11px;border:1px solid #44464d;border-radius:10px;background:#111216;color:#fff;font:700 12px/1 'DM Sans','Noto Sans KR',sans-serif;outline:0}.role-name-input::placeholder{color:#6e7178}.role-name-input:focus{border-color:#ff6b70;box-shadow:0 0 0 3px rgba(255,107,112,.12)}body.editing .role-name-display{display:none}body.editing .role-name-input{display:block}
     .batch-save-count{display:none;padding:5px 8px;border-radius:999px;background:#fff0f1;color:#c8171d;font-size:9px;font-weight:900;white-space:nowrap}body.editing .batch-save-count{display:inline-flex}.batch-save-count.clean{background:#f1f1ef;color:#929499}
     .tool-btn.primary.save-pulse{box-shadow:0 0 0 4px rgba(237,28,36,.12)}
-    @media(max-width:620px){.edit-session-hint{max-width:210px;line-height:1.4}.drag-handle{left:6px}.minutes-item.drag-over-before{box-shadow:0 -3px 0 #ed1c24}.role-card.drag-over-before{box-shadow:0 -3px 0 #ed1c24}.role-card.drag-over-after{box-shadow:0 3px 0 #ed1c24}}
+    @media(max-width:620px){.edit-session-hint{max-width:210px;line-height:1.4}.drag-handle{left:6px}.minutes-item.drag-over-before{box-shadow:0 -3px 0 #ed1c24}.role-card.drag-over-before{box-shadow:0 -3px 0 #ed1c24}.role-card.drag-over-after{box-shadow:0 3px 0 #ed1c24}.role-name-input{font-size:13px}}
     @media(prefers-reduced-motion:reduce){body.editing .minutes-item,.role-card{transition:none}}
   `;
   document.head.appendChild(style);
@@ -87,7 +88,10 @@ function renderList(key){
 
 function renderRoles(){
   const roles=draft.summary_data?.roles||[];
-  $('#roleGrid').innerHTML=roles.map((r,i)=>`<article class="role-card" data-role-card="${i}" draggable="${isEditing()?'true':'false'}"><button class="role-drag" type="button" tabindex="-1" aria-label="드래그해서 역할 순서 변경">⠿</button><small>ROLE ${String(i+1).padStart(2,'0')}</small><strong class="role-text" data-role-title="${i}" contenteditable="${isEditing()?'true':'false'}">${esc(r.role)}</strong><p class="role-text" data-role-names="${i}" contenteditable="${isEditing()?'true':'false'}">${esc(r.names)}</p></article>`).join('');
+  $('#roleGrid').innerHTML=roles.map((r,i)=>{
+    const names=String(r.names||'').trim();
+    return `<article class="role-card" data-role-card="${i}" draggable="${isEditing()?'true':'false'}"><button class="role-drag" type="button" tabindex="-1" aria-label="드래그해서 역할 순서 변경">⠿</button><small>ROLE ${String(i+1).padStart(2,'0')}</small><strong class="role-text" data-role-title="${i}" contenteditable="${isEditing()?'true':'false'}">${esc(r.role)}</strong><p class="role-name-display">${names?esc(names):'<span class="role-name-empty">담당자 미지정</span>'}</p><input class="role-name-input" data-role-names="${i}" type="text" value="${esc(names)}" placeholder="담당자 이름 직접 입력 · 예: 김OO, 이OO" aria-label="${esc(r.role)} 담당자 이름" /></article>`;
+  }).join('');
 }
 
 function bindEditableInputs(){
@@ -100,7 +104,7 @@ function bindEditableInputs(){
     const i=Number(el.dataset.roleTitle);if(draft.summary_data.roles?.[i])draft.summary_data.roles[i].role=el.textContent.trim();markDirty();
   }));
   document.querySelectorAll('[data-role-names]').forEach(el=>el.addEventListener('input',()=>{
-    const i=Number(el.dataset.roleNames);if(draft.summary_data.roles?.[i])draft.summary_data.roles[i].names=el.textContent.trim();markDirty();
+    const i=Number(el.dataset.roleNames);if(draft.summary_data.roles?.[i])draft.summary_data.roles[i].names=el.value.trim();markDirty();
   }));
 }
 
@@ -123,7 +127,7 @@ function syncRolesFromDOM(){
   if(!cards.length)return;
   draft.summary_data.roles=cards.map(card=>({
     role:card.querySelector('[data-role-title]')?.textContent.trim()||'',
-    names:card.querySelector('[data-role-names]')?.textContent.trim()||''
+    names:card.querySelector('[data-role-names]')?.value.trim()||''
   }));
 }
 
@@ -144,7 +148,7 @@ function updateDirtyUI(){
 function enterEdit(){
   document.body.classList.add('editing');
   draft=clone(currentRecord);dirty=false;render();updateDirtyUI();
-  toast('여러 항목을 수정하고 순서를 바꾼 뒤 한 번에 저장할 수 있습니다.');
+  toast('역할별 담당자 이름을 직접 입력하고 다른 내용과 함께 한 번에 저장할 수 있습니다.');
 }
 
 function cancelEdit(){
@@ -238,7 +242,7 @@ $('#printBtn').onclick=()=>window.print();
 
 document.addEventListener('keydown',e=>{
   if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='s'&&isEditing()){e.preventDefault();saveEdits()}
-  if(e.key==='Escape'&&isEditing()&&!document.activeElement?.matches('[contenteditable="true"]'))cancelEdit();
+  if(e.key==='Escape'&&isEditing()&&!document.activeElement?.matches('[contenteditable="true"],input,textarea'))cancelEdit();
 });
 
 window.addEventListener('beforeunload',e=>{if(isEditing()&&dirty){e.preventDefault();e.returnValue=''}});
