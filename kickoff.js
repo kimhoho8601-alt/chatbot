@@ -153,6 +153,16 @@ function mountKickoffWhyAction(){
   });
 }
 
+function mountMeetingNavigation(){
+  [document.querySelector('.desktop-nav'),document.getElementById('mobileNav')].forEach(nav=>{
+    if(!nav||nav.querySelector('a[href="./meeting.html"]'))return;
+    const link=document.createElement('a');
+    link.href='./meeting.html';
+    link.textContent='회의결과';
+    nav.appendChild(link);
+  });
+}
+
 function wireUI(){
   const saved=localStorage.getItem('sck-tf-author')||'';
   ['agreementAuthor','deliverableAuthor'].forEach(id=>{const el=document.getElementById(id);if(el){el.value=saved;el.addEventListener('change',()=>{syncAuthor(el.value);renderAgreement()})}});
@@ -171,6 +181,7 @@ function setupRealtime(){
   supabase.channel('sck-kickoff-deliverables-live').on('postgres_changes',{event:'*',schema:'public',table:'sck_tf_deliverable_notes'},()=>loadDeliverables()).subscribe();
 }
 
+mountMeetingNavigation();
 mountKickoffWhyAction();
 wireUI();
 await Promise.all([loadAgreement(),loadDeliverables()]);
