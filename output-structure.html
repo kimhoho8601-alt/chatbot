@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#e51b23">
+  <title>출력구조 설계 · SCK AI Chatbot TF</title>
+  <link rel="stylesheet" href="output-structure.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="./index.html"><span class="brand-mark">S</span><span><b>SCK AI Chatbot TF</b><small>OUTPUT ARCHITECTURE</small></span></a>
+    <div class="top-actions">
+      <div class="presence"><i></i><span id="presenceLabel">이 브라우저에서 편집 중</span></div>
+      <button class="button ghost" id="exportBtn">JSON 내보내기</button>
+      <button class="button primary" id="addBlockTop">+ 블록 추가</button>
+    </div>
+  </header>
+
+  <main class="workspace">
+    <aside class="outline-panel">
+      <div class="panel-label">OUTPUT MAP</div>
+      <h1>출력구조<br>설계</h1>
+      <p>AI가 기록을 어떤 순서와 형식으로 정리할지 함께 정의합니다.</p>
+      <div class="progress-wrap"><div><span>설계 진행률</span><b id="progressText">0%</b></div><div class="progress"><i id="progressBar"></i></div></div>
+      <nav class="outline" id="outline"></nav>
+      <button class="outline-add" id="addBlockSide">+ 새 출력 항목</button>
+      <a class="back-link" href="./index.html">← 프로젝트 홈</a>
+    </aside>
+
+    <section class="canvas-panel">
+      <div class="canvas-head">
+        <div><span class="eyebrow">STRUCTURE BOARD · AUTO SAVE</span><h2>좋은 답변의 뼈대를 만듭니다.</h2><p>블록을 이동하고, 출력 형식과 작성 원칙을 합의해 보세요.</p></div>
+        <div class="save-state"><span id="saveState">모든 변경사항 저장됨</span><time id="saveTime"></time></div>
+      </div>
+      <div class="canvas-tools" role="toolbar" aria-label="블록 추가">
+        <button data-add-type="narrative"><b>¶</b><span>서술형</span></button>
+        <button data-add-type="list"><b>≡</b><span>목록형</span></button>
+        <button data-add-type="table"><b>⊞</b><span>표형</span></button>
+        <button data-add-type="checklist"><b>☑</b><span>체크형</span></button>
+        <span class="tool-hint">블록을 끌어서 순서를 바꿀 수 있습니다.</span>
+      </div>
+      <div class="block-list" id="blockList"></div>
+      <button class="canvas-add" id="addBlockBottom"><span>＋</span><b>새 출력 항목 추가</b><small>서술형·목록형·표형·체크형</small></button>
+    </section>
+
+    <aside class="discussion-panel">
+      <div class="tabs"><button class="active" data-tab="comments">의견</button><button data-tab="history">변경이력</button></div>
+      <section class="tab-pane active" id="commentsPane">
+        <div class="discussion-head"><h3>블록별 논의</h3><span id="selectedBlockLabel">블록을 선택하세요</span></div>
+        <div class="comments" id="comments"></div>
+        <form class="comment-form" id="commentForm">
+          <input id="commentAuthor" maxlength="12" placeholder="이름" required>
+          <textarea id="commentText" maxlength="240" placeholder="이 항목에 대한 의견을 남겨주세요." required></textarea>
+          <button class="button primary" type="submit">의견 남기기</button>
+        </form>
+      </section>
+      <section class="tab-pane" id="historyPane"><div class="history" id="history"></div></section>
+      <div class="guide-card"><span>DESIGN RULE</span><strong>실제 사례는 올리지 않습니다.</strong><p>이 보드는 출력 항목·순서·형식·작성 원칙만 합의하는 공간입니다.</p></div>
+    </aside>
+  </main>
+
+  <div class="modal" id="blockModal" aria-hidden="true">
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <button class="modal-close" id="modalClose" aria-label="닫기">×</button>
+      <span class="eyebrow">NEW OUTPUT BLOCK</span><h2 id="modalTitle">어떤 출력 항목을 만들까요?</h2>
+      <div class="type-grid">
+        <button data-modal-type="narrative"><b>¶</b><strong>서술형</strong><small>문장과 문단으로 요약</small></button>
+        <button data-modal-type="list"><b>≡</b><strong>목록형</strong><small>핵심 내용을 항목화</small></button>
+        <button data-modal-type="table"><b>⊞</b><strong>표형</strong><small>열 기준으로 구조화</small></button>
+        <button data-modal-type="checklist"><b>☑</b><strong>체크형</strong><small>해당 여부를 명확히 표시</small></button>
+      </div>
+    </div>
+  </div>
+  <div class="toast" id="toast" role="status"></div>
+  <script src="output-structure.js"></script>
+</body>
+</html>
